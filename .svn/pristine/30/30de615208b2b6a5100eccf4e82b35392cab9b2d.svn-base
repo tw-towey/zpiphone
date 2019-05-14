@@ -1,0 +1,12 @@
+### 分发
+
+#### 文件目录
+router
+     |
+     index.js 主路由
+     |
+     LivingCulture.js 住培
+     |
+     mentorDisciple.js 中医师承
+
+

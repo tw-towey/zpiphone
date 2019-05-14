@@ -1,0 +1,40 @@
+### 公共组件
+
+#### 文件目录
+
+components
+        |
+        Home.vue  入口文件
+        |
+        Calendar.vue  日历插件
+        |
+        HomeActive.vue  首页教学活动列表
+        |
+        HomeMenu.vue  首页导航菜单组件
+        |
+        HomeRotation.vue  学员首页轮转计划
+        |
+        ManualAudit.vue  审核tab页
+        |
+        ManualAuditDetail.vue  手册审核详情
+        |
+        ManualAuditList.vue  审核列表
+        |
+        TeachingActivities.vue  查看教学活动列表
+        |
+        ActivitiesDetails.vue  活动详情
+        |
+        ViewList.vue  普通数据列表（查看、批量设置）
+        |
+        GraduateAppraisal.vue  出科鉴定（查看、鉴定）
+        |
+        PassAndNoPass.vue  通过不通过（公共）
+        |
+        ActivitiesAttended.vue 教学活动待参加
+        |
+        ActivityParticipated.vue 教学活动已参加
+        |
+        InputField.vue 输入框带标签处理
+
+
+

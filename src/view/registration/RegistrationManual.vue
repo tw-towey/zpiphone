@@ -1,0 +1,246 @@
+<template>
+  <div>
+    <van-nav-bar title="登记手册" right-text="管理" class="header" fixed left-arrow @click-left="onClickLeft"
+                 @click-right="onClickRight"/>
+    <div class="module seach">
+      <form action="/">
+        <van-search placeholder="姓名、编号、主要诊断" shape="round" :action="action" v-model="seacherVal" @search="onSearch"/>
+      </form>
+    </div>
+    <div class="layout_content top">
+
+      <div class="module">
+        <div class="cellWarp">
+          <div class="cellMsg">
+            <span>{{enrollmentStatistics.departmentName}}</span>
+            <span class="gray">{{enrollmentStatistics.range}}</span>
+          </div>
+        </div>
+
+        <div class="selectType" @click="methodClick($event)">
+          <van-row>
+            <van-col span="8" class="p5">
+              <div class="everyType" data-mode="disease">病种{{enrollmentStatistics.percentageDiseases}}%</div>
+            </van-col>
+            <van-col span="8" class="p5">
+              <div class="everyType" data-mode="skill">技能{{enrollmentStatistics.percentageSkill}}%</div>
+            </van-col>
+            <van-col span="8" class="p5">
+              <div class="everyType" data-mode="other">其他录入{{enrollmentStatistics.otherNum}}份</div>
+            </van-col>
+          </van-row>
+        </div>
+
+        <van-cell title="出科小结" value-class="a" @click="summary" value="查看 >"/>
+
+        <van-cell title="出科鉴定" :value-class="departmentOutApply?'a':'red'" :value="departmentOutApply?'已鉴定':'未鉴定'"
+                  @click="viewAppraisal"/>
+      </div>
+
+      <div class="manualTitle">
+        <van-row>
+          <van-col span="20">病历信息</van-col>
+          <van-col span="4">
+            <div class="textR" @click="orderFn"><span class="timeOrder timeText">时间</span> <img
+              class="timeOrder timeImg" :src=order?icon.positiveOrder:icon.reverseOrder>
+            </div>
+          </van-col>
+        </van-row>
+      </div>
+
+      <div>
+        <ViewList :listObj="listObj" :listData="newList"></ViewList>
+      </div>
+    </div>
+  </div>
+
+</template>
+
+<script>
+  /*登记手册*/
+  import ViewList from "@/components/ViewList";
+
+  export default {
+    name: "RegistrationManual",
+    components: {
+      "ViewList": ViewList
+    },
+    data() {
+      return {
+        seacherVal: "",
+        action: false,
+        order: true,
+        data: {},
+        icon: {
+          positiveOrder: require("@/assets/images/icons/positiveOrder.svg"),
+          reverseOrder: require("@/assets/images/icons/reverseOrder.svg")
+        },
+        medicals: [],
+        newList: [],
+        listObj: {
+          list: [
+            { field: "病人姓名：", name: "patientName", leftClass: "gray" },
+            { field: "就诊编号：", name: "visitNumber", leftClass: "gray" },
+            { field: "主要诊断：", name: "mainDiagnosis", leftClass: "gray" },
+            {
+              field: "审核状态：", name: "auditFlag", leftClass: "gray", render: (data, key) => {
+                return data[key] ? "已审核" : "未审核";
+              }
+            },
+            {
+              field: "编辑时间：", name: "createDate", leftClass: "gray", render: (data, key) => {
+                return this.utils.formatDate(data[key], "yyyy-MM-dd HH:mm");
+              }
+            }
+          ],
+          click: (data) => {
+            if (data.twoLevelType) {
+              this.$store.state.EditRegisterNum = "" + data.twoLevelType;
+              this.$store.state.EditRegisterObj = data;
+              this.$router.push({ name: "EditRegister" });
+            }
+          }
+        },
+        enrollmentStatistics: {},
+        departmentOutApply: {}
+      };
+    },
+    methods: {
+      onClickLeft() {
+        this.utils.goBack(this);
+      },
+      onClickRight() {
+        this.$router.push({ name: "RemoveManual", params: this.medicals });
+      },
+      methodClick(e) {
+        let mode = e.target.getAttribute("data-mode");
+        this.$store.state.regsterMode = mode;
+        this.$store.state.regsterDepartmentName = this.enrollmentStatistics.departmentName;
+        if (mode) {
+          this.$router.push({ name: "ModeRegister" });
+        }
+      },
+      onSearch(v) {
+        let val = this.utils.trim(this.seacherVal);
+        if (val) {
+          this.newList = [];
+          this.medicals.forEach(item => {
+            if (item.patientName.indexOf(val) > -1 || item.visitNumber.indexOf(val) > -1 || item.mainDiagnosis.indexOf(val) > -1) {
+              this.newList.push(item);
+            }
+          });
+          this.order = true;
+        } else {
+          this.newList = this.medicals;
+          this.order = true;
+        }
+      },
+      summary() {
+        this.$router.push({ name: "GraduateSummary", params: { type: "summary" } });
+      },
+      viewAppraisal() {
+        // if (this.data) {
+        if (this.departmentOutApply) {
+          this.$router.push({ name: "GraduateAppraisal", params: this.data });
+        } else {
+          this.Toast("科室老师暂未对学员做出科鉴定！");
+        }
+      },
+      orderFn() {
+        this.order = !this.order;
+        this.newList = this.utils.fastSort(this.newList, (a, b) => {
+          let first = this.utils.getTime(a.createDate);
+          let second = this.utils.getTime(b.createDate);
+          if (this.order) {
+            return first > second;
+          } else {
+            return first < second;
+          }
+        });
+      },
+      getData() {
+        this.utils.ajax({
+          method: "POST",
+          url: this.api.registerManual,
+          data: { currTime: this.$store.state.currentDepartment.endDate },
+          success: data => {
+            this.newList = data.enrollments;
+            this.medicals = data.enrollments;
+            this.data = data.departmentOutApply;
+            let curData = data.enrollmentStatistics;
+            curData.range = curData.startDate.split(" ")[0] + " ~ " + curData.endDate.split(" ")[0];
+            this.enrollmentStatistics = curData;
+            if (data.departmentOutApply && Object.keys(data.departmentOutApply).length) {
+              this.departmentOutApply = data.departmentOutApply.auditFlag == 2 ? false : true;
+            } else {
+              this.departmentOutApply = false;
+            }
+          }
+        });
+      }
+    },
+    created() {
+      this.getData();
+    }
+  };
+</script>
+
+<style scoped>
+  .top {
+    top: 6.3rem;
+  }
+
+  .seach {
+    position: fixed;
+    top: 2.5rem;
+    width: 100%;
+    height: 3rem;
+    z-index: 10;
+  }
+
+  .cellWarp {
+    padding: .5rem .9rem 0;
+    color: #323233;
+  }
+
+  .cellMsg {
+    line-height: 2rem;
+    border-bottom: 0.0625rem solid #ebedf0;
+    display: flex;
+    flex-wrap: wrap;
+    -webkit-flex-wrap: wrap;
+    justify-content: space-between;
+    -webkit-justify-content: space-between;
+  }
+
+  .selectType {
+    padding: .9rem 0;
+  }
+
+  .everyType {
+    border: 1px solid #50A8FF;
+    color: #50A8FF;
+    background: #eef9ff;
+    text-align: center;
+    height: 2rem;
+    line-height: 2rem;
+  }
+
+  .manualTitle {
+    padding: .9rem;
+  }
+
+  .timeText {
+    width: 2rem;
+  }
+
+  .timeImg {
+    width: 1rem;
+    vertical-align: sub;
+  }
+
+  .timeOrder {
+    height: 1rem;
+    display: inline-block;
+  }
+</style>
