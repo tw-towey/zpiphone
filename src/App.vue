@@ -10,7 +10,7 @@
     components: {},
     methods: {
       back() {
-        this.$router.go(-1);
+        // this.$router.go(-1);
       },
       keyboar(res) { // 监听安卓软键盘弹出收起
         if (typeof Elf.AppCallWeb != "undefined") {
@@ -27,14 +27,14 @@
       }
     },
     watch:{
-      $route(to,from){
-        if(to.path != '/Home') {
-          debugger
-          this.webApp.WebCallApp("TabbarHiddent", {}, (res) => {});
-        } else {
-          this.webApp.WebCallApp("TabbarShow", {}, (res) => {});
-        }
-      }
+      // $route(to,from){
+      //   if(to.path != '/Home') {
+      //     debugger
+      //     this.webApp.WebCallApp("TabbarHiddent", {}, (res) => {});
+      //   } else {
+      //     this.webApp.WebCallApp("TabbarShow", {}, (res) => {});
+      //   }
+      // }
     },
     created() {
       this.WebBack.push(this.back);

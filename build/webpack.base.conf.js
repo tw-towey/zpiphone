@@ -15,6 +15,7 @@ module.exports = {
     //     vue: 'Vue',
     //     vant: "vant",
     //     vuex: "Vuex",
+    //     Router: "vue-router"
     // },
     context: path.resolve(__dirname, '../'),
     entry: {
