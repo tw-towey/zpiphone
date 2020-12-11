@@ -7,7 +7,7 @@
       <div v-if="isErrMsg" class="tip-empty"><span class="icon-emptyface"></span><span class="text-empty">未分配带教老师，请联系轮转教秘</span></div>
       <div v-else class="teacherList">
         <ul>
-          <li class="bt" v-for="teacher in list">
+          <li class="bt" v-for="(teacher,index) in list" :key="index">
             <div>带教老师：{{teacher.teacherName}}</div>
             <span class="gray">带教时间：{{teacher.startTime}} ~ {{teacher.endTime}}</span>
           </li>
@@ -39,7 +39,8 @@
           departmentId: obj.departmentId,
           endDate: obj.endDate,
           startDate: obj.startDate,
-          studentId: this.$store.state.userInfo.human.caId
+          studentId: this.$store.state.userInfo.human.caId,
+          schedulingId: obj.id
         };
         this.departmentName = obj.departmentName;
         this.normalDepartmentName = obj.normalDepartmentName;

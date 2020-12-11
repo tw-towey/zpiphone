@@ -3,7 +3,7 @@
     <van-nav-bar :title="title" class="header" right-text="保存" @click-right="onClickRight" fixed left-arrow @click-left="onClickLeft"/>
     <div class="layout_content">
       <ul>
-        <li v-for="(obj, i) in showData">
+        <li v-for="(obj, i) in showData" :key="i">
           <van-swipe-cell :right-width="130" v-if="!obj.edit && obj.disEdit">
             <van-cell-group>
               <div><span>带教老师：</span><span>{{obj.teacherName}}</span></div>
@@ -102,7 +102,6 @@
             arr.push(item);
           }
         });
-        
         if (arr.length <= 0) {
           this.Toast('请至少添加一条带教时间');
         } else {
@@ -114,12 +113,13 @@
                 flag = false;
               }
             });
-            if (flag) {
+            if (flag && !i.edit) {
               let obj = {
                 allotTimes: [],
                 cycleEndTime: arr[0].cycleEndTime,
                 cycleStartTime: arr[0].cycleStartTime,
                 departmentId: arr[0].departmentId,
+                schedulingId : this.$route.params.params.schedulingId,
                 normalDepartmentId: arr[0].normalDepartmentId,
                 studentId: arr[0].studentId,
                 teacherId: i.teacherId
@@ -276,8 +276,6 @@
               this.first = false;
               this.loadData(true);
             }
-            let arr1 = [];
-            let arr2 = [];
             res.content.forEach((item) => {
               if (flag1) {
                 this._data.tempData.push({
@@ -285,6 +283,7 @@
                   cycleEndTime: obj.endDate,
                   cycleStartTime: obj.startDate,
                   normalDepartmentId: obj.normalDepartmentId,
+                  schedulingId:obj.schedulingId,
                   departmentId: obj.cycleDepartmentId,
                   teacherId: item.teacherId,
                 });
@@ -304,6 +303,17 @@
                       edit: false,
                       disEdit: item.selfDepartment
                     })
+                    if (!item.selfDepartment) {
+                      this._data.tempData.push({
+                        studentId: obj.studentId,
+                        cycleEndTime: obj.endDate,
+                        cycleStartTime: obj.startDate,
+                        schedulingId: obj.schedulingId,
+                        normalDepartmentId: obj.normalDepartmentId,
+                        departmentId: obj.cycleDepartmentId,
+                        teacherId: item.teacherId
+                      });
+                    }
                   });
                 }
               }

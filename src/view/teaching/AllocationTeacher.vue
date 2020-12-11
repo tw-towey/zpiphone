@@ -1,45 +1,33 @@
 <template>
   <div @click="domClick">
-    <van-nav-bar title="分配带教" class="header" fixed left-arrow @click-left="onClickLeft"/>
+    <van-nav-bar title="分配带教" class="header" fixed left-arrow @click-left="onClickLeft" />
     <div class="layout_content" :class="chooseTimeShow ? 'bottom16rem' : ''" @scroll="scroll">
-      <van-tabs
-        v-model="tabMode"
-        swipeable
-        sticky
-        title-active-color="#1a7fe9"
-        color="#5fa4ec"
-        :line-height="2"
-        :offset-top="40"
-        @change="change">
+      <van-tabs v-model="tabMode" swipeable sticky title-active-color="#1a7fe9" color="#5fa4ec" :line-height="2"
+        :offset-top="40" @change="change">
         <van-tab title="待分配">
           <div class="head-time" data-name="time" @click="chooseTime">
             <span data-name="time">入科时间</span>
             <span data-name="time" class="time">
               {{time1 ? time1 : '请选择时间'}}
-              <van-icon data-name="time" name="arrow"/>
+              <van-icon data-name="time" name="arrow" />
             </span>
           </div>
-          <ListLazy :mode="1" :time="time1" ref="mychild"></ListLazy>
+          <ListLazy :mode="1" :time="time1" ref="mychild1"></ListLazy>
         </van-tab>
         <van-tab title="已分配">
           <div class="head-time" data-name="time" @click="chooseTime">
             <span data-name="time">入科时间</span>
             <span data-name="time" class="time">
               {{time2 ? time2 : '请选择时间'}}
-              <van-icon data-name="time" name="arrow"/>
+              <van-icon data-name="time" name="arrow" />
             </span>
           </div>
           <ListLazy :mode="2" :time="time2" ref="mychild"></ListLazy>
         </van-tab>
       </van-tabs>
     </div>
-    <van-datetime-picker
-      v-if="chooseTimeShow"
-      v-model="currentDate"
-      type="year-month"
-      @confirm="dateConfirm"
-      @cancel="cancel"
-    />
+    <van-datetime-picker v-if="chooseTimeShow" v-model="currentDate" type="year-month" @confirm="dateConfirm"
+      @cancel="cancel" />
   </div>
 </template>
 
@@ -62,7 +50,8 @@ export default {
       chooseTimeShow: false,
       scrollTop0: 0,
       scrollTop1: 0,
-      tabMode:0
+      tabMode: 0,
+      mode: 1,
     };
   },
   methods: {
@@ -80,7 +69,7 @@ export default {
       }
     },
     scroll() {
-      if(this.tabMode) {
+      if (this.tabMode) {
         this.scrollTop1 = document.querySelector('.layout_content').scrollTop;
       } else {
         this.scrollTop0 = document.querySelector('.layout_content').scrollTop;
@@ -109,11 +98,13 @@ export default {
       if (this.tabMode) {
         this.$store.state.teacherTime2 = this.time;
         this.time2 = this.time;
+        this.$refs.mychild.getData(this.time);
       } else {
         this.$store.state.teacherTime1 = this.time;
         this.time1 = this.time;
+        this.$refs.mychild1.getData(this.time);
       }
-      this.$refs.mychild.getData(this.time);
+
       this.cancel();
     },
     cancel() {
@@ -121,15 +112,17 @@ export default {
     },
     change(index, title) {
       var that = this;
-      if(index) {
+      if (index) {
         this.tabMode = 1;
+        this.mode = 2;
         this.$store.state.tabActive = 1;
       } else {
+        this.mode = 1;
         this.$store.state.tabActive = 0;
         this.tabMode = 0;
       }
       setTimeout(() => {
-        if(index) {
+        if (index) {
           document.querySelector('.layout_content').scrollTop = that.scrollTop1;
         } else {
           document.querySelector('.layout_content').scrollTop = that.scrollTop0;
@@ -140,12 +133,12 @@ export default {
       if (this.$store.state.teacherTime1) {
         this.time1 = this.$store.state.teacherTime1;
       } else {
-        this.time1 = this.utils.formatDate(new Date().getTime(),'yyyy-MM');
+        this.time1 = this.utils.formatDate(new Date().getTime(), 'yyyy-MM');
       }
       if (this.$store.state.teacherTime2) {
         this.time2 = this.$store.state.teacherTime2;
       } else {
-        this.time2 = this.utils.formatDate(new Date().getTime(),'yyyy-MM');
+        this.time2 = this.utils.formatDate(new Date().getTime(), 'yyyy-MM');
       }
     }
   },

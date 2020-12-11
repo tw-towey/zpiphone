@@ -7,7 +7,7 @@
                 :line-height="2"
                 @click="change"
                 @change="change">
-        <div v-for="(item,index) in tabs">
+        <div v-for="(item,index) in tabs" :key="index">
           <van-tab :title="item.title">
             <van-list
               v-model="item.loading"
@@ -194,7 +194,9 @@
         let params = {
           identifyFlag: this.active,//待鉴定：0 已鉴定：1、目前tab的index正好和参数一致
           currentPage: Math.ceil(currentTab.listData.length / this.$store.state.pageSize) + 1,
-          pageSize: this.$store.state.pageSize
+          pageSize: this.$store.state.pageSize,
+        //   schedulingId: this.$store.state.curRotationDepartment.id,
+        //   studentId: this.$store.state.userInfo.human.caId
         };
 
         //如果是已鉴定tab页，增加鉴定时间参数

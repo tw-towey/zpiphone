@@ -19,7 +19,7 @@
       <div class="p9">
         <p class="grey">{{comment["title"]}}</p>
         <van-row>
-          <div v-for="(item,index) in comment.appraisalGrade">
+          <div v-for="(item,index) in comment.appraisalGrade" :key="index">
             <van-col span="6">
               <div v-if="isSet" :class="['select', index==setData[comment['name']]?'selected':'', index==0?'left':'']"
                    @click="setting(comment.appraisalGrade,comment,index)">
@@ -40,13 +40,13 @@
       </div>
       <p class="textR p9 grey m0">请输入2-150个字符</p>
 
-      <div v-for="obj in configObj">
+      <div v-for="(obj,index) in configObj" :key="index">
         <p class="p9 grey">{{obj.title}}</p>
         <div class="bgWhite selectWarp">
-          <div v-for="val in obj.list">
+          <div v-for="(val,inx) in obj.list" :key="inx">
             <p class="selectTitle">{{val.title}}</p>
             <van-row>
-              <div v-for="(item,index) in val.appraisalGrade">
+              <div v-for="(item,index) in val.appraisalGrade" :key="index">
                 <van-col span="6">
                   <div v-if="isSet" :class="['select', index==setData[val['name']]?'selected':'',index==0?'left':'']"
                        @click="setting(val.appraisalGrade,val,index)">

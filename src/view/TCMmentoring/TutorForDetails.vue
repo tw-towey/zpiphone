@@ -7,15 +7,16 @@
         <ul>
           <li>
             <p>擅长领域</p>
-            <p>{{item.territory}}</p>
+            <p>{{item.specialityTitle}}</p>
           </li>
           <li>
             <p>个人简介</p>
-            <p>{{item.brief}}</p>
+            <p>{{item.info}}</p>
           </li>
         </ul>
       </div>
-      <div class="button" @click="ApplyFor()">导师申请</div>
+      <!-- <div class="button" @click="ApplyFor()" v-if="canApply">导师申请</div> -->
+      <div class="button" @click="ApplyFor()" ><p style="text-align: center;">导师申请</p></div>
     </div>
   </div>
 </template>
@@ -33,16 +34,17 @@ export default {
       loading: false,
       finished: false,
       error: false,
+      // canApply:false,
       finishedText: "没有更多了",
       listData: [],
       listObj: {
         list: [
-          { field: "学院姓名：", name: "name", leftClass: "gray" },
-          { field: "所属科室：", name: "startDate", leftClass: "gray" },
-          { field: "技术职称：", name: "applyDate", leftClass: "gray" },
-          { field: "导师资质：", name: "reason", leftClass: "gray" },
+          { field: "导师姓名：", name: "name", leftClass: "gray" },
+          { field: "所属科室：", name: "departmentName", leftClass: "gray" },
+          { field: "技术职称：", name: "specialityTitle", leftClass: "gray" },
+          { field: "导师资质：", name: "mentorQualification", leftClass: "gray" },
           { field: "从业年限：", name: "years", leftClass: "gray" },
-          { field: "累计带教：", name: "person", leftClass: "gray" }
+          { field: "累计带教：", name: "totalCapacity", leftClass: "gray" }
         ]
       }
     };
@@ -50,45 +52,24 @@ export default {
   methods: {
     onClickLeft() {
       this.utils.goBack(this);
+      this.$store.state.canApply = '';
     },
     queryData() {
+      
+      // if(this.$store.state.canApply == true ){
+      //   this.canApply = true;
+      // }else{
+      //   this.canApply = false;
+      // }
       let params = {
-        auditFlag: "0",
-        currentPage:
-          Math.ceil(this.listData.length / this.$store.state.pageSize) + 1,
-        pageSize: this.$store.state.pageSize
+        teacherId:this.$store.state.mentorId
       };
       this.utils.ajax({
-        url: this.api.queryAuditList,
+        url: this.api.studentMentorMatch, 
         data: params,
         method: "POST",
         success: data => {
-          data.content = [
-            {
-              name: "张三",
-              startDate: "呼吸内科",
-              applyDate: "呼吸内科",
-              reason: "食管狭窄扩张术/内镜下食管...",
-              years: "11",
-              person: "200",
-              territory:
-                "adklhaskdwjdhjsacbasbchabshcbahbschbashbhabschbahsbchbashcbascbahsbchabscba",
-              brief: "sasdasdascascascascascascascascascascascascasc"
-            }
-          ];
-
-          if (data.content.length) {
-            const content = data.content.map(i => {
-              const item = i;
-              item.years = item.years + "年";
-              item.person = item.person + "人";
-              //   item.name = item.studentVO.name;
-              //   item.startDatee = item.startDate + "-" + item.endDate;
-              return item;
-            });
-
-            this.listData = content;
-          }
+          this.listData.push(data);
         }
       });
     },
@@ -118,11 +99,16 @@ p {
 .button {
   width: 100%;
   color: white;
-  font-size: 0.875rem;
-  background: #007acc;
-  text-align: center;
-  padding: 0.5rem 0;
+  font-size: 0.9rem;
+  background: #1A7FE9;
+  padding: 0.7rem 0;
   position: fixed;
   bottom: 0;
+  display: flex;
+  justify-content: center;
 }
+.button p{
+  padding: 0;
+  margin: 0;
+};
 </style>

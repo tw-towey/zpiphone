@@ -85,6 +85,12 @@ export default {
             list: [
               { field: "姓名：", name: "studentName", leftClass: "gray" },
               { field: "班次：", name: "dutyTypeName", leftClass: "gray" },
+              {
+                field: "值班日期：", name: "signDate", leftClass: "gray",
+                render: (data, key) => {
+                  return data[key].split(' ')[0];
+                }
+              },
               { field: "轮转科室：", name: "departmentName", leftClass: "gray" },
               { field: "签到时间：", name: "signInTimeText", leftClass: "gray" },
               { field: "签退时间：", name: "signOutTimeText", leftClass: "gray" }
@@ -183,7 +189,7 @@ export default {
           url =  this.api.pageDutyAuditList;
           break;
         case 2:
-          params.signTime = this.dateTime1.replace(/\//g, "-");;
+          params.signTime = this.dateTime1.replace(/\//g, "-");
           url = this.api.pageBackDailySign;
           break;
       }

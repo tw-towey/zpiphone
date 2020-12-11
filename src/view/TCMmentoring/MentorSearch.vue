@@ -12,19 +12,27 @@
       </div>
       <div data-v-0f4718e4 class="van-nav-bar__title van-ellipsis tosa">
         <van-search
-          v-model="departmentName"
+          v-model="keywords"
           placeholder="请输入导师姓名"
           shape="round"
           background
-          @search="onSearch"
-          @clear="clear"
         />
       </div>
-      <div data-v-0f4718e4 class="van-nav-bar__right" @click="onSearch">搜索</div>
+      <div data-v-0f4718e4 class="van-nav-bar__right" @click="onSearch()">搜索</div>
     </div>
-
     <div class="layout_content">
-      <ViewList :listObj="listObj" :listData="listData"></ViewList>
+       <van-list
+        v-model="loading"
+        :finished="finished"
+        :error.sync="error"
+        error-text="请求失败，点击重新加载"
+        :finished-text="finishedText"
+        immediate-check
+        :offset="50"
+        @load="onLoad()"
+      >
+        <ViewList :listObj="listObj" :listData="listData"></ViewList>
+      </van-list>
     </div>
   </div>
 </template>
@@ -39,19 +47,28 @@ export default {
   },
   data() {
     return {
-      value: "",
-      medicals: [],
-      newList: [],
-      searchDepartments: [],
-      departmentName: "",
+      listData: [],
+      keywords: "",
+      loading: false,
+      finished: false,
+      error: false,
+      finishedText: "没有更多了",
       listData: [],
       listObj: {
         list: [
-          { field: "学院姓名：", name: "name", leftClass: "gray" },
-          { field: "所属科室：", name: "startDate", leftClass: "gray" },
-          { field: "技术职称：", name: "applyDate", leftClass: "gray" },
-          { field: "导师资质：", name: "reason", leftClass: "gray" }
-        ]
+          { field: "导师姓名：", name: "mentorName", leftClass: "gray" },
+          { field: "所属科室：", name: "departmentName", leftClass: "gray" },
+          { field: "技术职称：", name: "specialityTitle", leftClass: "gray" },
+          { field: "擅长领域：", name: "skillInArea", leftClass: "gray" },
+        ],
+        click: (data, key) => {
+          this.$store.state.mentorId = data.id
+          this.$store.state.canApply = data.canApply;
+          this.$router.push({
+            name: "TutorForDetails",
+            params: {}
+          });
+        }
       }
     };
   },
@@ -59,199 +76,57 @@ export default {
     onClickLeft() {
       this.utils.goBack(this);
     },
-    onSearch(v) {
-      console.log(1111);
-      let departmentName = this.utils.trim(this.departmentName);
-      if (departmentName) {
-        this.listData = this.listData.filter(item => {
-          return item.caId != 0 && item.name.indexOf(departmentName) > -1;
-        });
-      } else {
-        this.tabclass();
-      }
+    onSearch() {
+       this.queryData(true) 
     },
-    tabclass() {
-      let params = {
-        auditFlag: "0",
-        currentPage:
-          Math.ceil(this.listData.length / this.$store.state.pageSize) + 1,
-        pageSize: this.$store.state.pageSize
-      };
+    onLoad() {
+      this.queryData(false);
+    },
+    queryData(flag) {
+      let params = {};
+      if (flag) {
+        params = {
+          currentPage: 1,
+          pageSize: this.$store.state.pageSize,
+          mentorName : this.keywords
+        };
+      } else {
+        params = {
+          currentPage:
+            Math.ceil(this.listData.length / this.$store.state.pageSize) + 1,
+          pageSize: this.$store.state.pageSize,
+        };
+      }
       this.utils.ajax({
-        url: this.api.queryAuditList,
-        method: "POST",
+        url: this.api.studentMentorMatchMentors,
         data: params,
+        method: "POST",
         success: data => {
-          console.log("ssssggg", data);
-          data.content = [
-            {
-              caId: 1,
-              name: "张三",
-              startDate: "呼吸内科",
-              applyDate: "呼吸内科",
-              reason: "食管狭窄扩张术/内镜下食管..."
-            },
-            {
-              name: "李三",
-              startDate: "呼吸内科",
-              applyDate: "呼吸内科",
-              reason: "食管狭窄扩张术/内镜下食管...",
-              caId: 2
-            },
-            {
-              name: "王二",
-              startDate: "呼吸内科",
-              applyDate: "呼吸内科",
-              reason: "食管狭窄扩张术/内镜下食管...",
-              caId: 3
-            },
-            {
-              name: "张三",
-              startDate: "呼吸内科",
-              applyDate: "呼吸内科",
-              reason: "食管狭窄扩张术/内镜下食管...",
-              caId: 4
-            },
-            {
-              name: "李三",
-              startDate: "呼吸内科",
-              applyDate: "呼吸内科",
-              reason: "食管狭窄扩张术/内镜下食管..."
-            },
-            {
-              name: "王二",
-              startDate: "呼吸内科",
-              applyDate: "呼吸内科",
-              reason: "食管狭窄扩张术/内镜下食管..."
-            },
-            {
-              name: "张三",
-              startDate: "呼吸内科",
-              applyDate: "呼吸内科",
-              reason: "食管狭窄扩张术/内镜下食管..."
-            },
-            {
-              name: "李三",
-              startDate: "呼吸内科",
-              applyDate: "呼吸内科",
-              reason: "食管狭窄扩张术/内镜下食管..."
-            },
-            {
-              name: "王二",
-              startDate: "呼吸内科",
-              applyDate: "呼吸内科",
-              reason: "食管狭窄扩张术/内镜下食管..."
-            },
-            {
-              name: "张三",
-              startDate: "呼吸内科",
-              applyDate: "呼吸内科",
-              reason: "食管狭窄扩张术/内镜下食管..."
-            },
-            {
-              name: "李三",
-              startDate: "呼吸内科",
-              applyDate: "呼吸内科",
-              reason: "食管狭窄扩张术/内镜下食管..."
-            },
-            {
-              name: "王二",
-              startDate: "呼吸内科",
-              applyDate: "呼吸内科",
-              reason: "食管狭窄扩张术/内镜下食管..."
-            },
-            {
-              name: "张三",
-              startDate: "呼吸内科",
-              applyDate: "呼吸内科",
-              reason: "食管狭窄扩张术/内镜下食管..."
-            },
-            {
-              name: "李三",
-              startDate: "呼吸内科",
-              applyDate: "呼吸内科",
-              reason: "食管狭窄扩张术/内镜下食管..."
-            },
-            {
-              name: "王二",
-              startDate: "呼吸内科",
-              applyDate: "呼吸内科",
-              reason: "食管狭窄扩张术/内镜下食管..."
-            },
-            {
-              name: "张三",
-              startDate: "呼吸内科",
-              applyDate: "呼吸内科",
-              reason: "食管狭窄扩张术/内镜下食管..."
-            },
-            {
-              name: "李三",
-              startDate: "呼吸内科",
-              applyDate: "呼吸内科",
-              reason: "食管狭窄扩张术/内镜下食管..."
-            },
-            {
-              name: "王二",
-              startDate: "呼吸内科",
-              applyDate: "呼吸内科",
-              reason: "食管狭窄扩张术/内镜下食管..."
-            },
-            {
-              name: "张三",
-              startDate: "呼吸内科",
-              applyDate: "呼吸内科",
-              reason: "食管狭窄扩张术/内镜下食管..."
-            },
-            {
-              name: "李三",
-              startDate: "呼吸内科",
-              applyDate: "呼吸内科",
-              reason: "食管狭窄扩张术/内镜下食管..."
-            },
-            {
-              name: "王二",
-              startDate: "呼吸内科",
-              applyDate: "呼吸内科",
-              reason: "食管狭窄扩张术/内镜下食管..."
-            },
-            {
-              name: "张三",
-              startDate: "呼吸内科",
-              applyDate: "呼吸内科",
-              reason: "食管狭窄扩张术/内镜下食管..."
-            },
-            {
-              name: "李三",
-              startDate: "呼吸内科",
-              applyDate: "呼吸内科",
-              reason: "食管狭窄扩张术/内镜下食管..."
-            },
-            {
-              name: "王二",
-              startDate: "呼吸内科",
-              applyDate: "呼吸内科",
-              reason: "食管狭窄扩张术/内镜下食管..."
-            }
-          ];
           if (data.content.length) {
             const content = data.content.map(i => {
               const item = i;
-              //   item.name = item.studentVO.name;
-              //   item.startDatee = item.startDate + "-" + item.endDate;
               return item;
             });
-            this.listData = content;
+            if (flag) {
+              this.listData = content;
+            } else {
+              this.listData = this.listData.concat(content);
+            }
+            
+          } else {
+            this.finishedText = "";
+          }
+          this.loading = false; //结束当前加载
+          if (params.currentPage >= data.totalPages) {
+            //最后一页、加载完成
+            this.finished = true;
           }
         }
       });
-      // }
     },
-    clear() {
-      this.tabclass();
-    },
+
   },
   created() {
-    this.tabclass();
   }
 };
 </script>
@@ -264,6 +139,6 @@ export default {
   margin: 0;
 }
 .van-search .van-cell {
-  padding: 0.1rem;
+  padding: 0rem;
 }
 </style>

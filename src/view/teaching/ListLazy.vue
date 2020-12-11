@@ -1,7 +1,7 @@
 <template>
   <van-list v-model="loading" :finished="finished" finished-text="没有更多了" @load="onLoad">
     <ul>
-      <li v-for="obj in data" @click="chooseTeacher(obj)">
+      <li v-for="(obj,index) in data" @click="chooseTeacher(obj)" :key="index">
         <div>
           <div><span>姓名:</span>{{obj.humanName}}</div>
           <div><span>专业:</span>{{majorName(obj.traineeMajorCode)}}</div>
@@ -40,10 +40,12 @@ export default {
       this.getData();
     },
     getData(timeChange) {
-      let url = this.api.getNotAllotTeacherStudentForMobile;
+      let url = '';
       let obj = this.params;
       if (this.mode == "2") {
         url = this.api.getAlreadyAllotTeacherStudentForMobile;
+      }else{
+        url = this.api.getNotAllotTeacherStudentForMobile
       }
       obj.yearMonth = this.time;
       if (timeChange) {
@@ -75,6 +77,8 @@ export default {
       }, true);
     },
     chooseTeacher(obj) {
+      console.log(obj,'1111');
+      console.log(this.mode);
       if(this.mode == '1') {
         this.$store.state.studentObj = obj;
         this.$router.push({ name: "ChooseTeacher" });
@@ -83,6 +87,7 @@ export default {
           endDate: obj.endDate,
           startDate: obj.startDate,
           // departmentId: obj.departmentId,
+          schedulingId: obj.schedulingId,
           cycleDepartmentId: obj.departmentId,
           normalDepartmentId: obj.normalDepartmentId,
           name: obj.humanName,
@@ -100,11 +105,11 @@ export default {
     idType(type) {
       let name = null;
       [
-        { 'key': '1', 'value': '本单位人' },
-        { 'key': '2', 'value': '社会人' },
-        { 'key': '3', 'value': '研究生' },
-        { 'key': '4', 'value': '委培人员' },
-        { 'key': '5', 'value': '并轨专硕' }
+        { 'key': '1_IdType', 'value': '本单位人' },
+        { 'key': '2_IdType', 'value': '社会人' },
+        { 'key': '3_IdType', 'value': '研究生' },
+        { 'key': '4_IdType', 'value': '委培人员' },
+        { 'key': '5_IdType', 'value': '并轨专硕' }
       ].forEach(item => {
         if (type == item.key) {
           name = item.value;
@@ -149,6 +154,7 @@ export default {
         { 'key': '3200', 'value': '口腔正畸科' },
         { 'key': '3300', 'value': '口腔病理科' },
         { 'key': '3400', 'value': '口腔颌面影像科' },
+        { 'key': '3700', 'value': '重症医学科' },
         { 'key': '4100', 'value': '中医内科' },
         { 'key': '4200', 'value': '中医外科' },
         { 'key': '4300', 'value': '中医妇科' },
@@ -169,6 +175,8 @@ export default {
     }
   },
   created() {
+    console.log(this.mode,'1111555444');
+    
   },
   props: ["mode", "time"]
 };

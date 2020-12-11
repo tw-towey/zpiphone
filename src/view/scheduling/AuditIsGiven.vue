@@ -14,7 +14,7 @@
         @click="change"
         @change="change"
       >
-        <div v-for="(item,index) in tabs">
+        <div v-for="(item,index) in tabs" :key="index">
           <van-tab :title="item.title">
             <van-list
               v-model="item.loading"
@@ -29,8 +29,8 @@
               <div v-if="index == 1" class="auditDate">
                 <van-cell title="审核日期" is-link :value="auditDate" @click="selectTime()"/>
               </div>
-
-              <ViewList :listObj="item.listObj" :listData="item.listData"></ViewList>
+              <ViewList :listObj="item.listObj" :listData="item.listData" :Audlist="flag"></ViewList>
+              
             </van-list>
           </van-tab>
         </div>
@@ -61,7 +61,7 @@ import PassAndNoPass from "@/components/PassAndNoPass";
 import Retroactive from "@/view/attendance/Retroactive";
 
 export default {
-  name: "SubjectAppraise",
+  name: "AuditIsGiven",
   components: {
     Retroactive: Retroactive,
     ViewList: ViewList,
@@ -69,6 +69,7 @@ export default {
   },
   data() {
     return {
+      flag:true,
       error: "请选择待审核数据",
       active: 0,
       calendarShow: false,
@@ -129,7 +130,7 @@ export default {
                 name: "departmentName",
                 leftClass: "gray"
               },
-              { field: "申请人：", name: "memberName", leftClass: "gray" },
+              { field: "审核人：", name: "memberName", leftClass: "gray" },
               {
                 field: "审核状态：",
                 name: "auditFlag",
@@ -212,6 +213,7 @@ export default {
         data: params,
         url: this.api.getNotAlreadyAuditDepartmentOutApply,
         success: data => {
+          console.log("审核",data)
           if (data.content.length) {
             data.content.forEach(item => {
               item.selected = false;
@@ -293,6 +295,10 @@ export default {
 .mt {
   margin-top: 2rem;
 }
+.tab_r{
+  position: relative;
+}
+
 </style>
 
 

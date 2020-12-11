@@ -5,14 +5,14 @@
       <div>
         <p class="timeAxis">
           <van-icon name="arrow-left" size="20px" @click="getYearAxis(yearAxis[0].year - 5, yearAxis[0].year - 1)"/>
-          <span v-for="item in yearAxis" :class="{'active': item.active}"
-                @click="selectedYear(item)">{{item.year}}</span>
+          <span v-for="(item,index) in yearAxis" :class="{'active': item.active}"
+                @click="selectedYear(item)" :key="index">{{item.year}}</span>
           <van-icon name="arrow" size="20px" @click="getYearAxis(yearAxis[4].year + 1, yearAxis[4].year + 5)"/>
         </p>
 
         <div class="timeMonth">
           <van-row>
-            <div v-for="item in months" @click="teachingDetail(item.month)">
+            <div v-for="(item,inx) in months" @click="teachingDetail(item.month)" :key="inx">
               <van-col span="8">
                 <div class="month">{{item.month}} 月</div>
                 <div class="people">{{item.num}} 人</div>

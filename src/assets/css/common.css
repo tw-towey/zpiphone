@@ -5,7 +5,10 @@
 .pictp_02 {
   background: url("../images/home/pic_zp-02.svg");
 }
-
+.new360{
+  background: url("../images/home/new360.svg");
+  background-size: 100%;
+}
 .pictp_03 {
   background: url("../images/home/pic_zp-03.svg");
 }
@@ -13,7 +16,9 @@
 .pictp_04 {
   background: url("../images/home/pic_zp-04.svg");
 }
-
+.pic_zp-200617{
+  background: url("../images/home/pic_zp-200617.svg");
+}
 .pictp_05 {
   background: url("../images/home/pic_zp-05.svg");
 }
@@ -83,6 +88,38 @@
 .pictp_23 {
   background: url("../images/home/pic_zp-23.svg");
 }
+.pictp_24 {
+  background: url("../images/home/pic_zp-24.svg");
+}
+.pictp_25 {
+  background: url("../images/home/pic_zp-25.svg");
+}
+.pictp_26 {
+  background: url("../images/home/pic_zp-26.svg");
+}
+.pictp_27 {
+  background: url("../images/home/pic0318_01.svg");
+}
+.pictp_28 {
+  background: url("../images/home/pic_zp-28.svg");
+  background-size: 100%;
+}
+.pictp_29 {
+  background: url("../images/home/pic_zp-29.svg");
+  background-size: 100%;
+}
+.pictp_30 {
+  background: url("../images/home/pic_zp-30.svg");
+  background-size: 100%;
+}
+.Mini-CEXDOPS {
+  background: url("../images/home/Mini-CEXDOPS.png");
+  background-size: cover;
+}
+.pictp_32 {
+  background: url("../images/home/pictp_32.svg");
+  background-size: cover;
+}
 .reverseOrder {
   background: url("../images/icons/positiveOrder.svg") 100% 100% no-repeat;
 }
@@ -99,6 +136,7 @@
   bottom: 0;
   top: 2.5rem;
   overflow-y: scroll;
+  word-wrap: break-word;
 }
 
 .module {
@@ -158,10 +196,8 @@
   line-height: 2.5rem;
   background: #1a7fe9;
 }
-
 .header .van-nav-bar__title {
   color: #fff;
-  font-size: 1.1rem;
 }
 
 .header .van-nav-bar__text {
@@ -179,6 +215,7 @@
 
 .van-nav-bar .van-icon {
   color: #fff;
+  font-size: 1.2rem;
 }
 
 .header {
@@ -204,7 +241,9 @@
 .green {
   color: #4ebc7f;
 }
-
+.blue {
+  color: #0066cc;
+}
 .blank {
   color: #000;
 }
@@ -258,10 +297,9 @@
   padding-top: 50%;
   text-align: center;
 }
-
 .icon-emptyface {
-  height: 2rem;
-  line-height: 2rem;
+  height: 1.5rem;
+  line-height: 1.5rem;
   display: inline-block;
   background-repeat: no-repeat;
   background-image: url("../images/icons/emptyface.svg");
@@ -273,4 +311,27 @@
   color: gray;
   line-height: 2rem;
   vertical-align: text-bottom;
+}
+.van-field--disabled .van-field__control{
+  color: #323233 !important;
+}
+
+.van-cell-grid{
+  margin: 0.4rem;
+}
+
+.van-cell-grid .van-cell {
+  border-radius: 0.3rem;
+  padding: 0 1rem;
+}
+
+.layout_content_tow {
+  -webkit-overflow-scrolling: touch;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: 5rem;
+  overflow-y: scroll;
+  word-wrap: break-word;
 }

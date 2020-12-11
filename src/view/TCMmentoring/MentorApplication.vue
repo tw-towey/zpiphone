@@ -1,14 +1,15 @@
 <template>
   <div class>
     <van-nav-bar title="导师申请" class="header" fixed left-arrow @click-left="onClickLeft">
-      <div class="add-activity" slot="right" v-if="submit">
+      <!-- <div class="add-activity" slot="right" v-if="submit">
         <div @click="onClickRight">
           <p>提交</p>
         </div>
-      </div>
-      <div class="add-activity" slot="right" v-if="!submit">
-        <div @click="onClickRightop">
-          <p>撤销</p>
+      </div>-->
+      <div class="add-activity" slot="right" >
+        <div >
+          <p v-if="withdraw"  @click="onClickRightop()">撤销</p>
+           <p v-if="submit" @click="onClickRight()">提交</p>
         </div>
       </div>
     </van-nav-bar>
@@ -18,11 +19,18 @@
         <ul>
           <li>
             <p>个人简历</p>
-            <van-field v-model="resume" type="textarea" placeholder="请输个人简历" required/>
+            <van-field
+              v-model="resume"
+              type="textarea"
+              :placeholder="placeholder"
+              :readonly="readonly"
+              :required="required"
+            />
           </li>
         </ul>
       </div>
-      <div class="button" @click="preserved()">保存</div>
+      <!-- <div class="button" @click="preserved()" v-if="submit">保存</div> -->
+      <!-- <div class="button" @click="onClickRight()" v-if="submit"><p>提交</p></div> -->
     </div>
   </div>
 </template>
@@ -44,14 +52,19 @@ export default {
       listData: [],
       listObj: {
         list: [
-          { field: "学员姓名：", name: "name", leftClass: "gray" },
-          { field: "培训专业：", name: "startDate", leftClass: "gray" },
-          { field: "参加年份：", name: "applyDate", leftClass: "gray" },
-          { field: "培训年限：", name: "reason", leftClass: "gray" }
+          { field: "学员姓名：", name: "studentName", leftClass: "gray" },
+          { field: "培训专业：", name: "traineeMajorName", leftClass: "gray" },
+          { field: "参加年份：", name: "traineeYear", leftClass: "gray" },
+          { field: "培训年限：", name: "traineeLimit", leftClass: "gray" }
         ]
       },
       resume: "",
-      submit: true
+      submit: true,
+      withdraw: true,
+      id: "",
+      required: true,
+      readonly: false,
+      placeholder: "请输入个人简历"
     };
   },
   methods: {
@@ -60,80 +73,149 @@ export default {
     },
     onClickRight() {
       //  提交
-      // let params = {};
-      // let url = "";
-      // this.ajaxp(params, url,'提交成功');
-      this.submit = !this.submit;
-    },
-    onClickRightop() {
-      // 撤销
-      // let params = {};
-      // let url = "";
-      // this.ajaxp(params, url,'保存成功');
-      this.submit = !this.submit;
-    },
-    queryData() {
-      let params = {
-        auditFlag: "0",
-        currentPage:
-          Math.ceil(this.listData.length / this.$store.state.pageSize) + 1,
-        pageSize: this.$store.state.pageSize
-      };
+      if(this.utils.trim(this.resume) == ''){
+        this.Toast('请填写个人简历');
+        return
+      }
+      var obj = {};
+      if (this.id) {
+        obj = {
+          id: this.id,
+          teacherId: this.$store.state.mentorId,
+          jobDescription: this.resume,
+          status: 2
+        };
+      } else {
+        obj = {
+          teacherId: this.$store.state.mentorId,
+          jobDescription: this.resume,
+          status: 2
+        };
+      }
+      // if (this.resume == "") {
+      //   this.Toast("请填写个人简历");
+      //   return;
+      // }
       this.utils.ajax({
-        url: this.api.queryAuditList,
-        data: params,
+        url: this.api.studentMentorMatchApply,
+        data: obj,
         method: "POST",
         success: data => {
-          data.content = [
-            {
-              name: "张三",
-              startDate: "呼吸内科",
-              applyDate: "呼吸内科",
-              reason: "食管狭窄扩张术/内镜下食管...",
-              years: "11",
-              person: "200",
-            }
-          ];
-
-          if (data.content.length) {
-            const content = data.content.map(i => {
-              const item = i;
-              console.log(i);
-              item.years = item.years + "年";
-              item.person = item.person + "人";
-              return item;
-            });
-            this.listData = content;
-          }
-        }
-      });
-    },
-    ajaxp(params, url, tost) {
-      this.utils.ajax({
-        url: url,
-        data: params,
-        method: "POST",
-        success: data => {
-          this.Toast(tost);
+          this.Toast("提交成功");
+          this.$store.state.canApply = '';
           setTimeout(() => {
-            this.submit = !this.submit;
+            this.resume = '';
+            this.$router.go(-2);
           }, 500);
         }
       });
     },
-    preserved() {
-      // 保存
-      let url = "";
-      let params = {};
+    onClickRightop() {
+      // 撤销
+      var obj = {
+        id: this.id,
+        status: 6,
+        teacherId: this.$store.state.mentorId
+      };
       this.utils.ajax({
-        url: url,
+        url: this.api.studentMentorMatchAudit,
+        data: obj,
+        method: "POST",
+        success: data => {
+          this.Toast("撤销成功");
+          this.$store.state.canApply = '';
+          setTimeout(() => {
+            this.resume = '';
+            this.$router.go(-2);
+          }, 500);
+        }
+      });
+    },
+    queryData() {
+      var params = {
+        studentId: this.$store.state.userInfo.human.caId, // 学员id
+        teacherId: this.$store.state.mentorId
+      };
+      this.utils.ajax({
+        url: this.api.studentMentorMatch,
         data: params,
         method: "POST",
         success: data => {
-          this.Toast("保存成功");
+          // status 状态 申请状态：0删除，1草稿 ,2待处理，3通过，4退回，5超时未处理自动退回，6解除',
+          if (data.status == 1) {
+            this.withdraw = false;
+            this.required = true;
+            this.readonly = false;
+          } else if (data.status == 2) {
+            this.withdraw = true;
+            this.readonly = true;
+            this.required = false;
+          } else {
+            this.withdraw = false;
+            this.readonly = true;
+            this.required = false;
+          }
+          if (this.$store.state.canApply == true) {
+            this.submit = true;
+            this.readonly = false;
+            this.required = true;
+          } else {
+            this.submit = false;
+            // this.Toast('已有导师，不可重复申请')
+          }
+          this.listData.push(data);
+          this.listData.map(i => {
+            const item = i;
+            if (i.traineeYear) {
+              item.traineeYear = i.traineeYear + "级";
+            }
+            if (i.traineeLimit) {
+              item.traineeLimit = i.traineeLimit + "年";
+            }
+            if (i.jobDescription) {
+            } else {
+              // this.placeholder = "";
+            }
+            this.id = item.id;
+            this.resume = item.jobDescription;
+            return item;
+          });
         }
       });
-    }
+    },
+    // preserved() {
+    //   // 保存
+    //   var obj = {};
+    //   if (this.id) {
+    //     obj = {
+    //       id: this.id,
+    //       teacherId: this.$store.state.mentorId,
+    //       jobDescription: this.resume,
+    //       status: 1
+    //     };
+    //   } else {
+    //     obj = {
+    //       teacherId: this.$store.state.mentorId,
+    //       jobDescription: this.resume,
+    //       status: 2
+    //     };
+    //   }
+    //   if (this.resume == "") {
+    //     this.Toast("请填写个人简历");
+    //     return;
+    //   }
+    //   this.utils.ajax({
+    //     url: this.api.studentMentorMatchApply,
+    //     data: obj,
+    //     method: "POST",
+    //     success: data => {
+    //       this.Toast("保存成功");
+    //       setTimeout(() => {
+    //         this.utils.goBack(this);
+    //       }, 500);
+    //     }
+    //   });
+    // }
   },
   created() {
     this.queryData();
@@ -155,14 +237,22 @@ p {
   width: 100%;
   color: white;
   font-size: 0.9rem;
-  padding: 0.5rem 0;
-  text-align: center;
-  background: #007acc;
+  background: #1A7FE9;
+  padding: 0.7rem 0;
   position: fixed;
   bottom: 0;
-  text-align: center;
+  display: flex;
+  justify-content: center;
+}
+.button p{
+  margin: 0;
+  padding: 0;
 }
 .add-activity {
   color: #fff;
+}
+.add-activity p {
+  margin: 0;
+  padding: 0;
 }
 </style>

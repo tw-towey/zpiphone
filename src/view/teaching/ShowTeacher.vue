@@ -4,7 +4,7 @@
         <div class="layout_content">
           <div class="headTime">带教时间</div>
           <ul>
-            <li v-for="(obj, i) in timeData">
+            <li v-for="(obj, i) in timeData" :key="i">
               <van-swipe-cell :right-width="130" v-if="!obj.edit">
                 <van-cell-group>
                   <van-cell :title="obj.str" />

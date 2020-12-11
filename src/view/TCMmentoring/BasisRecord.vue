@@ -1,6 +1,6 @@
 <template>
   <div>
-    <van-nav-bar title="临床医案" class="header" fixed left-arrow @click-left="onClickLeft"/>
+    <van-nav-bar title="医案记录" class="header" fixed left-arrow @click-left="onClickLeft"/>
     <div class="layout_content">
         <Consilia :ConsiliaData='ConsiliaData'></Consilia>
     </div>
@@ -17,7 +17,7 @@ export default {
   },
   data() {
     return {
-       ConsiliaData:'add' 
+       ConsiliaData: 1
     };
   },
   methods: {
@@ -25,7 +25,8 @@ export default {
       this.utils.goBack(this);
     }
   },
-  created() {}
+  created() {
+  }
 };
 </script>
 <style  scoped>

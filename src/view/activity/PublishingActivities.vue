@@ -91,7 +91,9 @@
         this.error = true;
       },
       setActive(data) {
-        this.activeList = [...this.$refs.activeFn.setData(data)];
+        this.$nextTick(()=>{
+           this.activeList = [...this.$refs.activeFn.setData(data)];
+        })
       },
       onLoad() {
         this.getLeaveList();

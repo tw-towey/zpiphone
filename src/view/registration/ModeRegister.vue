@@ -1,16 +1,18 @@
 <template>
   <div>
-    <van-nav-bar v-if="mode!='other'" :title="title" right-text="新增" class="header" fixed left-arrow
+    <van-nav-bar v-if="mode!='other' && isShowt" :title="title" right-text="新增" class="header" fixed left-arrow
                  @click-left="onClickLeft"
                  @click-right="onClickRight"/>
+    <van-nav-bar v-else :title="title"  class="header" fixed left-arrow  @click-left="onClickLeft"/>             
     <van-nav-bar v-if="mode=='other'" :title="title" class="header" fixed left-arrow @click-left="onClickLeft"
                  @click-right="onClickRight"/>
     <div class="layout_content">
       <div class="head">
         <span v-if="mode!='other'">{{title}}录入情况</span>
         <span v-if="mode!='other'">{{this.departmentName}}</span>
-        <span v-if="mode!='other'">{{info.percent}}</span>
-        <span v-if="mode=='other'">其他轮转信息录入情况 <span class="a">{{info.percent}}</span> 份</span>
+        <span v-if="mode!='other'">{{$store.state.regsterList.finishedPercent}}%</span>
+        <span v-if="$store.state.regsterList.actualNum"><span v-if="mode=='other'">其他轮转信息录入情况 <span class="a">{{$store.state.regsterList.actualNum}}</span> 份</span></span>
+        
       </div>
       <div class="content">
         <ul>
@@ -23,14 +25,16 @@
             <span v-if="mode=='other'">已录</span>
             <span v-if="mode=='other'">带教已审</span>
           </li>
-          <li v-for="obj in listData" @click="showList(obj)" v-if="obj.name != 12">
-            <span class="first" v-if="mode!='other'">{{obj.name}}</span>
-            <span v-if="mode!='other'">{{obj.requestNum}}</span>
-            <span v-if="mode!='other'">{{obj.submitNum}}</span>
-            <span v-if="mode!='other'">{{obj.auditNum}}</span>
-            <span class="first" v-if="mode=='other'">{{translate(obj.name)}}</span>
-            <span v-if="mode=='other'">{{obj.submitNum}}</span>
-            <span v-if="mode=='other'">{{obj.auditNum}}</span>
+          <li v-for="(obj,index) in listData" :key="index" @click="showList(obj)" >
+              <template v-if="obj.name != 12">
+                   <span class="first" v-if="mode!='other'">{{obj.name}}</span>
+                    <span v-if="mode!='other'">{{obj.requestNum}}</span>
+                    <span v-if="mode!='other'">{{obj.submitNum}}</span>
+                    <span v-if="mode!='other'">{{obj.auditNum}}</span>
+                    <span class="first" v-if="mode=='other'">{{translate(obj.name)}}</span>
+                    <span v-if="mode=='other'">{{obj.submitNum}}</span>
+                    <span v-if="mode=='other'">{{obj.auditNum}}</span>
+              </template>
           </li>
         </ul>
       </div>
@@ -46,9 +50,9 @@
       return {
         mode: "",
         title: "",
-        departmentName: this.$store.state.regsterDepartmentName,
-        info: {},
-        listData: []
+        departmentName: this.$store.state.scheduling.departmentName,
+        listData: [],
+        isShowt: true,
       };
     },
     methods: {
@@ -60,56 +64,71 @@
       },
       dataLoad() {
         this.mode = this.$store.state.regsterMode;
-        let url = '';
+        let url = this.api.queryOneLevelTypeDetail;
+        let promis = '';
         switch (this.mode) {
           case "disease" :
             this.title = "病种";
-            url = this.api.registerIllList;
+            promis = {
+              oneLevelType : 1,
+              normalDepartmentId: this.$store.state.scheduling.normalDepartmentId,
+              version: this.$store.state.scheduling.version,
+              multistandardId : this.$store.state.scheduling.multistandardId,
+            //   departmentCaId: this.$store.state.scheduling.departmentId
+            }
             break;
           case "skill" :
             this.title = "技能";
-            url = this.api.registerSkillList;
+            promis = {
+              oneLevelType : 2,
+              normalDepartmentId: this.$store.state.scheduling.normalDepartmentId,
+              version: this.$store.state.scheduling.version,
+              multistandardId : this.$store.state.scheduling.multistandardId,
+            //   departmentCaId: this.$store.state.scheduling.departmentId
+            }
             break;
           case "other" :
             this.title = "其他";
-            url = this.api.otherList;
+            promis = {
+              oneLevelType : 3,
+              normalDepartmentId: this.$store.state.scheduling.normalDepartmentId,
+              version: this.$store.state.scheduling.version,
+              multistandardId : this.$store.state.scheduling.multistandardId,
+            //   departmentCaId: this.$store.state.scheduling.departmentId
+            }
+            break;
+           case "surgery" :
+            this.title = "手术";
+            promis = {
+              oneLevelType : 4,
+              normalDepartmentId: this.$store.state.scheduling.normalDepartmentId,
+              version: this.$store.state.scheduling.version,
+              multistandardId : this.$store.state.scheduling.multistandardId,
+            //   departmentCaId: this.$store.state.scheduling.departmentId
+            }  
             break;
           default :
             return;
         }
         let that = this;
-        console.log(this.$store.state.currentDepartment);
         this.utils.ajax({
           url: url,
-          data: {
-            currTime: this.$store.state.currentDepartment.startTime
-          },
+          data:promis,
           method: "post",
           success: (res) => {
-            switch (this.mode) {
-              case "disease" :
-                this.info = res.diseaseInfo;
-                this.listData = res.diseaseInfo.data;
-                break;
-              case "skill" :
-                this.info = res.surgeryInfo;
-                this.listData = res.surgeryInfo.data;
-                break;
-              case "other" :
-                this.info = res.otherInfo;
-                this.listData = res.otherInfo.data;
-                break;
-              default :
-                return;
-            }
-            
+            this.listData = res;
           }
         })
       },
       onClickRight() {
-        this.$router.push({ name: "AddRegister" });
+        // this.$router.push({ name: "AddRegister" });
+        this.$router.push({ name: "RegistrationHand" });
       },
       showList(obj) {
+        if (!obj.code) {
+          obj.code = null;
+        }
+        this.$store.state.bzName = obj.name;
         if (this.$store.state.regsterMode === "other") {
           this.$router.push({ name: "OtherRotation", params: obj, query: {type: obj.name} });
         } else {
@@ -122,10 +141,20 @@
         } else {
           return "";
         }
-      }
+      },
+      isShow() {
+        var date = new Date().getTime();
+        if(this.$store.state.startTimeDate){
+          if( date < this.utils.getTime(this.$store.state.startTimeDate)){
+              this.isShowt = false;
+            return;
+          }
+        }  
+    }
     },
     created() {
       this.dataLoad();
+      this.isShow();
     }
   };
 </script>

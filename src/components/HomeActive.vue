@@ -13,7 +13,7 @@
     >
       <div class="activityList">
         <ul>
-          <li v-for="activityItem in activityList" @click="activityView(activityItem)">
+          <li v-for="(activityItem,index) in activityList" @click="activityView(activityItem)" :key="index">
             <div class="activity_title">{{activityItem.title}}</div>
             <p class="activity_time">报名时间： {{activityItem.signInDate}}</p>
             <p class="activity_time">活动时间： {{activityItem.startTime}} 至 {{activityItem.endTime}}</p>
@@ -64,6 +64,7 @@
                 if(item.isSignUp === 1) {
                   let time = item.startTime.replace(/-/g,'/');
                   item.signInDate =  this.utils.formatDate(new Date(time).getTime() - (2 * 60 * 60 * 1000)) + ' 前';
+                  item.signInDate =  this.utils.formatDate(new Date(time).getTime() ) + ' 前';
                 }else{
                   item.signInDate = '无需报名';
                 }

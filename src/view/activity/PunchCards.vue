@@ -49,15 +49,20 @@
       </div>
       <div class="punch" @click="scan()">扫码打卡</div>
     </div>
+    <Modal :showQrCode="showQrCode"></Modal>
   </div>
 </template>
 
 <script>
+import Modal from "@/view/singupQrCode/modal";
 export default {
   name: "PunchCards",
+  components: {
+    Modal: Modal
+  },
   data() {
     return {
-      applyList: [],
+      applyList: '',
       startTime: "",
       endTimee: "",
       name: "",
@@ -72,17 +77,24 @@ export default {
         latitudeAndLongitude: ""
       },
       dimensionCode: "",
-      classHour:0,
+      classHour: 0,
+      showQrCode: {
+        show: false,
+        data: {},
+        type: 1
+      },
+      paramsDate: '',
     };
   },
   created() {
-    this.getLeaveList(this.$route.params.id);
+    this.getLeaveList(this.$store.state.routeParamsid.id);
     // this.location();
     this.$store.state.dimensionCode = "";
   },
   methods: {
     onClickLeft() {
       this.utils.goBack(this);
+      this.$store.state.routeParamsid = '';
     },
     getLeaveList(activityId) {
       //发布活动
@@ -96,7 +108,7 @@ export default {
         method: "POST",
         success: data => {
           this.applyList = data;
-         if (data.signInDate == '' || data.signOutDate == '') {
+          if (data.signInDate == "" || data.signOutDate == "") {
             this.classHour = "0";
           } else {
             let signInDate = this.utils.getTime(this.applyList.signInDate); // 签到时间
@@ -106,12 +118,12 @@ export default {
             var hh = h.toFixed();
             this.classHour = hh;
           }
-          this.startTime = this.$route.params.startTime;
-          this.endTimee = this.$route.params.endTime;
-          let startTime = this.utils.getTime(this.$route.params.startTime); // 开始时间
-          let endTime = this.utils.getTime(this.$route.params.endTime); // 结束时间
+          this.startTime = this.$store.state.routeParamsid.startTime;
+          this.endTimee = this.$store.state.routeParamsid.endTime;
+          let startTime = this.utils.getTime(this.$store.state.routeParamsid.startTime); // 开始时间
+          let endTime = this.utils.getTime(this.$store.state.routeParamsid.endTime); // 结束时间
           let timee = endTime - startTime;
-          let nowTime = new Date(this.$store.state.timestamp).getTime(); // 服务器时间
+          let nowTime = this.utils.getTime(this.$store.state.timestamp);
           if (this.applyList.signInDate == "") {
             //签到
             this.name = "未签到";
@@ -135,7 +147,6 @@ export default {
             }
           }
           if (this.applyList.signOutDate == "") {
-            // 签退
             this.signin = "未签退";
             this.drawing = "drawingg";
             this.showOutTime = false;
@@ -163,9 +174,44 @@ export default {
     scan() {
       // 扫码打卡
       // this.location();
-      this.sood();
+      // this.sood();
+      this.webApp.WebCallApp("positioningPoint", {}, res => {
+        if (this.webApp.isInIOS()) {
+          if (res.result.state) {
+            this.location();
+          } else {
+            if (res.result.code === 0) {
+              this.locationObj.locationDetail = res.result.address;
+              this.locationObj.latitudeAndLongitude = res.result.longitude + "," + res.result.latitude;
+              this.sood();
+            } else {
+              this.Toast("定位失败");
+              this.sood();
+            }
+          }
+        } else {
+          if (res.result.args) {
+            if (res.result.args.state) {
+              this.location();
+            } else {
+              this.Toast("定位失败");
+              this.sood();
+            }
+          } else {
+            if (res.result.code === 0) {
+              this.locationObj.locationDetail = res.result.address;
+              this.locationObj.latitudeAndLongitude = res.result.longitude + "," + res.result.latitude;
+              this.sood();
+            } else {
+              this.Toast("定位失败");
+              this.sood();
+            }
+          }
+        }
+      });
     },
-    location() {  // 定位这个版本先不需要
+    location() {
+      // 定位这个版本先不需要
       AMap.plugin("AMap.Geolocation", () => {
         var geolocation = new AMap.Geolocation({
           enableHighAccuracy: true, // 是否使用高精度定位，默认：true
@@ -175,28 +221,40 @@ export default {
         geolocation.getCurrentPosition();
         AMap.event.addListener(geolocation, "complete", data => {
           this.locationObj.locationDetail = data.formattedAddress;
-          this.locationObj.latitudeAndLongitude = `${data.position.lat},${
-            data.position.lng
-          }`;
-          this.locationObj.flage = true;
-          
+          this.locationObj.latitudeAndLongitude = `${data.position.lat},${data.position.lng}`;
+          // this.locationObj.flage = true;
+          this.sood();
         });
         AMap.event.addListener(geolocation, "error", err => {
           // this.Toast("定位失败");
           // console.log(err);
-          this.locationObj.locationDetail = "定位失败，请重新获取定位";
-          if (err.message === "Geolocation permission denied.") {
-            this.Toast("请开启定位权限");
-            this.locationObj.locationDetail = "请开启定位权限";
-          }
-          this.locationObj.flage = false;
+          // this.locationObj.locationDetail = "定位失败，请重新获取定位";
+          // if (err.message === "Geolocation permission denied.") {
+          //   this.Toast("请开启定位权限");
+          //   this.locationObj.locationDetail = "请开启定位权限";
+          // }
+          // this.locationObj.flage = false;
+          this.sood();
         });
       });
+    },
+    saveQrSignInOrSignOut(params){
+          this.utils.ajax({
+            url: this.api.saveQrSignInOrSignOut,
+            method: "POST",
+            data: params,
+            success: data => {
+              this.Toast("打卡成功");
+              setTimeout(() => {
+                this.getLeaveList(this.$store.state.routeParamsid.id);
+              }, 1000);
+            }
+          });
     },
     sood() {
       var dsMins =
         (this.utils.getTime(this.$store.state.timestamp) -
-          this.utils.getTime(this.$route.params.startTime)) /
+          this.utils.getTime(this.$store.state.routeParamsid.startTime)) /
         3600000;
       if (dsMins < -2) {
         this.Toast("请在活动开始前两小时内打卡");
@@ -218,18 +276,39 @@ export default {
           qrCodeInfoJson: JSON.stringify(obj),
           memberCaId: this.$store.state.userInfo.human.caId,
           teachingId: this.applyList.teachingId, //签到/签退经纬度
-          // latitudeLongitude: this.locationObj.latitudeAndLongitude,
-          // locationDetail: this.locationObj.locationDetail // 定位这个版本不需要
+          latitudeLongitude: this.locationObj.latitudeAndLongitude
+            ? this.locationObj.latitudeAndLongitude
+            : "假的",
+          locationDetail: this.locationObj.locationDetail
+            ? this.locationObj.locationDetail
+            : "123" // 定位这个版本不需要
         };
+        this.paramsDate = params;
+        let sendXhr = () => {
+            this.saveQrSignInOrSignOut(params);
+        }
         this.utils.ajax({
-          url: this.api.saveQrSignInOrSignOut,
-          method: "POST",
-          data: params,
-          success: data => {
-            this.Toast("打卡成功");
-            setTimeout(() => {
-              this.getLeaveList(this.$route.params.id);
-            }, 1000);
+          url: this.api.queryEvaluate,
+          method: "post",
+          data: {
+            teachingId: params.teachingId
+          },
+          success: res => {
+            if (res.isSignOut == 1) {
+              if (res.isNeedEvaluate == 1) {
+                this.$store.state.activitiesDetailsObj = { id:res.teachingId, evaluateId: res.evaluateId };
+                let callback = () => {
+                  sendXhr();
+                }
+                this.showQrCode.data = res;
+                this.showQrCode.show = true;
+                this.showQrCode.callback = callback;
+              } else {
+                sendXhr();
+              }
+            } else {
+              sendXhr();
+            }
           }
         });
       });

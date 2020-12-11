@@ -55,42 +55,59 @@ export default {
 
     getLeaveList(activityId) {
       var params = {
-        teachingId: activityId
+        id: activityId
       };
       this.utils.ajax({
-        url: this.api.queryOpinionByTeachingId,
+        url: this.api.opinionFindById,
         data: params,
         method: "POST",
         success: data => {
           this.Dateread = data.questionOfOpinionVOs;
-          console.log(data, "kkkk");
           this.memberId = data.id;
         }
       });
     },
     onClickRight() {
-      if (this.radioo.length !== 0 && this.result.length !== 0) {
-        this.keepp(2);
-      } else {
-        this.Toast("选题不能为空");
-      }
+      this.Dateread.forEach(item => {
+        if (item.typeOfQuestion == 1) {
+          if (this.radioo.length !== 0) {
+            this.keepp(2);
+          } else {
+            this.Toast("答案不能为空");
+          }
+        }
+        if (item.typeOfQuestion == 2) {
+          if (this.result.length !== 0) {
+            this.keepp(2);
+          } else {
+            this.Toast("答案不能为空");
+          }
+        }
+      });
     },
     keep() {
-      this.radioo.map(i => {
-        console.log(i, "ooooooooo");
+      this.radioo.map(i => {});
+      this.Dateread.forEach(item => {
+        if (item.typeOfQuestion == 1) {
+          if (this.radioo.length !== 0) {
+            this.keepp(1);
+          } else {
+            this.Toast("答案不能为空");
+          }
+        }
+        if (item.typeOfQuestion == 2) {
+          if (this.result.length !== 0) {
+            this.keepp(1);
+          } else {
+            this.Toast("答案不能为空");
+          }
+        }
       });
-      if (this.radioo.length !== 0 && this.result.length !== 0) {
-        this.keepp(1);
-      } else {
-        this.Toast("选题不能为空");
-      }
+      console.log(this.radioo.length, "158", this.result);
     },
     keepp(flag) {
-      console.log(this.$store.state.activitiesDetailsObj, "kkkkkkkkk");
-
       var paramss = {
         flag: flag,
-        memberId: this.$store.state.activitiesDetailsObj.memberCaId,
         teachingId: this.$store.state.activitiesDetailsObj.id,
         answers: []
       };
@@ -102,7 +119,6 @@ export default {
         };
         this.result.forEach((i, index) => {
           console.log(item, "kkkksksksksksk");
-
           if (item.id == i.rcpFkQuestionOfOpinion) {
             obj.questionOfOpinionId = item.id;
             if (index == this.result.length - 1) {
@@ -125,13 +141,19 @@ export default {
         url: this.api.saveAnswerOfOpinion,
         data: paramss,
         method: "POST",
-        success: data => {}
+        success: data => {
+          if(flag == 1){
+            this.Toast('保存成功');
+          }
+          if(flag == 2){
+            this.Toast('提交成功');
+          }
+        }
       });
     }
   },
   created() {
-    this.getLeaveList(this.$route.params.id);
-    console.log(this.$route.params.id);
+    this.getLeaveList(this.$route.params.evaluateId);
   }
 };
 </script>

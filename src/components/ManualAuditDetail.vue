@@ -3,7 +3,7 @@
     <van-nav-bar title="手册详情" class="header" fixed left-arrow @click-left="onClickLeft">
       <!-- <span v-if="tab == 0" class="cancleBtn" slot="right" @click="cancle()">撤销审核</span> -->
     </van-nav-bar>
-    <div class="layout_content">
+    <div class="">
       <div class="manualAuditTable">
         <h3 class="title">基本信息</h3>
         <ul class="list">
@@ -1447,7 +1447,7 @@ export default {
             },
             {
               field: "住院志内容",
-              name: "doctorAdvice",
+              name: "content",
               required: false
             },
             {
@@ -1616,6 +1616,7 @@ export default {
   background: #f4f4f4;
   margin-bottom: 0.5rem;
   border-radius: 0.25rem;
+  height: 8rem;
   resize: none;
 }
 .fileItem img {

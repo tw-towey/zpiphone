@@ -13,21 +13,23 @@
           :offset="50"
           @load="onLoad"
         >
-          <div v-for="(item,index) in applyList">
-            <p @click="switchover(item)">{{item.title}}</p>
-            <p @click="switchover(item)">活动时间: {{item.startTime }} - {{item.endTime }}</p>
-            <p @click="switchover(item)">发布时间: {{item.timeOfRelease }}</p>
-            <div class="people">
-              <p @click="switchover(item)">报名人数：{{item.numOfSignUp }}</p>
-              <p :class="item.havenot">{{item.started}}</p>
-            </div>
-            <div class="font_color">
-              <button
-                :class="item.clasState"
-                @click="cancel(item)"
-                :disabled="item.disabledCall"
-              >取消报名</button>
-              <button class="but_cancel" @click="tabclass(item)">打卡详情</button>
+          <div v-for="(item,index) in applyList" :key="index" class="activty_left_content_box">
+            <div class="disola">
+                <p @click="switchover(item)">{{item.title}}</p>
+                <p @click="switchover(item)">活动时间: {{ utils.formatDate(item.startTime, "yyyy-MM-dd HH:mm" ) }} ~ {{ utils.formatDate(item.endTime, "yyyy-MM-dd HH:mm")}}</p>
+                <p @click="switchover(item)">发布时间: {{ item.timeOfRelease }}</p>
+                <div class="people">
+                <p @click="switchover(item)">报名人数：{{item.numOfSignUp }}</p>
+                <p :class="item.havenot">{{item.started}}</p>
+                </div>
+                <div class="font_color">
+                <button
+                    :class="item.clasState"
+                    @click="cancel(item)"
+                    :disabled="item.disabledCall"
+                >取消报名</button>
+                <button class="but_cancel" @click="tabclass(item)">打卡详情</button>
+                </div>
             </div>
           </div>
         </van-list>
@@ -61,7 +63,6 @@ export default {
     },
     switchover(item) {
       // 待参加详情
-      console.log("itemmmmm", item);
       this.$store.state.activitiesDetailsObj = {
         id: item.id,
         condition: "ToStayIn",
@@ -73,6 +74,7 @@ export default {
     },
     tabclass(item) {
       // 打卡详情
+      this.$store.state.routeParamsid = item;
       this.$router.push({
         name: "PunchCards",
         params: {
@@ -82,10 +84,11 @@ export default {
           startTime: item.startTime,
           endTime: item.endTime
         }
+        
       });
+     
     },
     cancel(item) {
-      console.log(item, "ppoiooo");
       this.applyingY(2, item.memberCaId, item.id);
       // 取消报名
     },
@@ -112,13 +115,12 @@ export default {
     },
     getLeaveList(update) {
       //发布活动
-      console.log(this.$store.state.pageSize);
-
       var obj = {
-        currentPage: 1,
+        currentPage:Math.ceil(this.applyList.length / this.$store.state.pageSize) + 1,
         pageSize: this.$store.state.pageSize,
         isMobile: 1,
-        waitingJoin: 1
+        waitingJoin: 1,
+        startDate: this.$store.state.timeStartDate
       };
       this.utils.ajax({
         url: this.api.queryOwnTeachingList,
@@ -133,7 +135,7 @@ export default {
               this.finishedText = "没有更多了";
             }
           } else {
-            this.finishedText = "";
+            this.finishedText = "没有更多了";
             this.finished = true;
           }
           this.loading = false;
@@ -148,8 +150,9 @@ export default {
             );
             if (timestamp < startTime) {
               item.started = "未开始";
-            }
-            if (timestamp > startTime && timestamp < endTime) {
+            }else if (timestamp > startTime && timestamp < endTime ) {
+              item.started = "进行中";
+            }else if(timestamp > startTime && timestamp < (endTime+sd) ){
               item.started = "进行中";
             }
             item.havenot =
@@ -206,13 +209,11 @@ export default {
             item.disabledCall = item.clasState === "but_issue" ? true : false;
             return item;
           });
-          console.log(data.content.started, "ywywyywy");
           if (update) {
             this.applyList = data.content;
             return;
           }
           this.applyList = [...this.applyList, ...data.content];
-          console.log(this.applyList, "kkkkkkkkksk");
         }
       });
     }
@@ -228,13 +229,23 @@ export default {
   padding-bottom: 0.5rem;
 }
 .activty_left_content {
-  width: 90%;
-  margin: 0 auto;
+  width: 100%;
+}
+.activty_left_content .activty_left_content_box{
+    padding: 0.05rem 0;
+    border-bottom: 0.0625rem solid #f5f5f5;
+}
+.activty_left_content .activty_left_content_box > .disola{
+   width: 90%;
+   padding: 0.5rem 0;
+   margin:0 auto;
+}
+.activty_left_content .activty_left_content_box .disola > p{
+    padding: 0.2rem 0;
 }
 .activty_left_content p:nth-of-type(2),
 .activty_left_content p:nth-of-type(3) {
   color: #afafaf;
-  font-size: 0.68rem;
   padding: 0;
   margin: 0;
 }
@@ -243,7 +254,6 @@ export default {
   margin: 0;
 }
 .font_color {
-  font-size: 0.68rem;
   padding: 0.5rem 0;
   width: 100%;
   justify-content: space-between;
@@ -252,16 +262,23 @@ export default {
   border: 0;
 }
 .but_cancel {
-  padding: 0.2rem 0.7rem;
-  border-radius: 50px;
+  font-size: 0.68rem; 
+  text-align: center;
+  padding: 0.2rem 0.4rem;
+  border-radius: 3.125rem;
   background: #eef7fe;
   color: #187fe8;
+  margin-right: 0.3rem;
+  border: 0;
+  margin-bottom: 0.25rem;
 }
 .but_issue {
-  padding: 0.2rem 0.7rem;
-  border-radius: 50px;
+  padding: 0.2rem 0.4rem;
+  font-size: 0.68rem; 
+  padding: 0.2rem 0.4rem;
+  border-radius: 3.125rem;
   background: #e5e5e5;
-  color: #c4c4c4;
+  color: #999999;
 }
 .people {
   display: flex;

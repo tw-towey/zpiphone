@@ -2,31 +2,31 @@
   <div>
     <van-nav-bar title="活动管理" class="header" fixed left-arrow @click-left="onClickLeft">
       <div class="add-activity" slot="right" v-show="rightShow">
-        <!-- <div @click="onClickRight">添加活动</div> -->
+        <div @click="onClickRight">添加活动</div>
       </div>
     </van-nav-bar>
 
     <div class="layout_content" ref="layoutContent" @scroll="scroll()">
-      <!-- <van-tabs v-model="active" :offset-top="40" sticky swipeable title-active-color="#1a7fe9" color="#5fa4ec"
+      <van-tabs v-model="active" :offset-top="40" sticky swipeable title-active-color="#1a7fe9" color="#5fa4ec"
                 :line-height="2"
-                @click="change" @change="change"> -->
+                @click="change" @change="change">
 
-        <!-- <van-tab title="审核活动"> -->
+        <van-tab title="审核活动">
           <van-list v-model="tabs[0].loading" :finished="tabs[0].finished" :error.sync="tabs[0].error"
                     error-text="请求失败，点击重新加载" :finished-text="tabs[0].finishedText"
                     immediate-check :offset="50" @load="onLoad()">
             <AuditActivitiesLinst :activityList="tabs[0].listData"></AuditActivitiesLinst>
           </van-list>
-        <!-- </van-tab> -->
+        </van-tab>
 
-        <!-- <van-tab title="发布活动">
+        <van-tab title="发布活动">
           <van-list v-model="tabs[1].loading" :finished="tabs[1].finished" :error.sync="tabs[1].error"
                     error-text="请求失败，点击重新加载" :finished-text="tabs[1].finishedText"
                     immediate-check :offset="50" @load="onLoad()">
             <Activity :activeList="tabs[1].listData" ref="activeFn" @setActive="setActive"></Activity>
           </van-list>
-        </van-tab> -->
-      <!-- </van-tabs> -->
+        </van-tab>
+      </van-tabs>
     </div>
   </div>
 </template>
@@ -71,15 +71,17 @@
         this.utils.goBack(this);
         this.$store.state.inputtext = '';
         this.$store.state.paramsTeachingId = ''
+        this.$store.state.Csoes = ''
       },
       onClickRight() {
         this.$store.state.DepartmentEcho = '';
         this.$router.push({name: "AddActivities", params: {}});
-        this.$store.state.inputtext = '添加'
+        this.$store.state.inputtext = '添加';
       },
       onLoad(){
         if (this.active == 0) {//审核活动
           this.getAuditActivityList();
+          this.$store.state.Csoes = '' 
         } else {//发布活动
           this.getPublishingActivityList();
         }
@@ -128,10 +130,9 @@
       getPublishingActivityList() {//发布活动
         let currentTab = this.tabs[this.active];
         let params = {
-          currentPage: Math.ceil(currentTab.listData.length / 5) + 1,
+          currentPage: Math.ceil(currentTab.listData.length / this.$store.state.pageSize) + 1,
           pageSize: this.$store.state.pageSize
         };
-
         this.utils.ajax({
           url: this.api.teachingList,
           data: params,
@@ -142,12 +143,10 @@
             } else {
               currentTab.finishedText = '';
             }
-
             currentTab.loading = false;//结束当前加载
             if (params.currentPage >= data.totalPages) {//最后一页、加载完成
               currentTab.finished = true;
             }
-
             this.setActive(currentTab.listData);
           },
           error: (error) => {
@@ -158,7 +157,9 @@
       },
       setActive(data) {
         let currentTab = this.tabs[this.active];
-        currentTab.listData = [...this.$refs.activeFn.setData(data)];
+        this.$nextTick(()=>{
+            currentTab.listData = [...this.$refs.activeFn.setData(data)];
+        })
       },
     },
     created() {

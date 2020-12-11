@@ -41,12 +41,14 @@ export default {
       listData: [],
       listObj: {
         list: [
-          { field: "导师姓名：", name: "name", leftClass: "gray" },
-          { field: "所属科室：", name: "startDate", leftClass: "gray" },
-          { field: "技术职称：", name: "applyDate", leftClass: "gray" },
-          { field: "擅长领域：", name: "reason", leftClass: "gray" }
+          { field: "导师姓名：", name: "mentorName", leftClass: "gray" },
+          { field: "所属科室：", name: "departmentName", leftClass: "gray" },
+          { field: "技术职称：", name: "specialityTitle", leftClass: "gray" },
+          { field: "擅长领域：", name: "skillInArea", leftClass: "gray" },
         ],
         click: (data, key) => {
+          this.$store.state.mentorId =data.id;
+          this.$store.state.canApply = data.canApply;
           this.$router.push({
             name: "TutorForDetails",
             params: {}
@@ -57,10 +59,11 @@ export default {
   },
   methods: {
     onClickLeft() {
+      this.$store.state.mentorId = '';
+      this.$store.state.canApply = "";
       this.utils.goBack(this);
     },
     onClickRight() {
-      console.log(5555);
       this.$router.push({
         name: "MentorSearch",
         params: {}
@@ -71,169 +74,19 @@ export default {
     },
     queryData() {
       let params = {
-        auditFlag: "0",
         currentPage:
           Math.ceil(this.listData.length / this.$store.state.pageSize) + 1,
         pageSize: this.$store.state.pageSize
       };
 
       this.utils.ajax({
-        url: this.api.queryAuditList,
+        url: this.api.studentMentorMatchMentors,
         data: params,
         method: "POST",
         success: data => {
-          data.content = [
-            {
-              name: "张三",
-              startDate: "呼吸内科",
-              applyDate: "呼吸内科",
-              reason: "食管狭窄扩张术/内镜下食管..."
-            },
-            {
-              name: "李三",
-              startDate: "呼吸内科",
-              applyDate: "呼吸内科",
-              reason: "食管狭窄扩张术/内镜下食管..."
-            },
-            {
-              name: "王二",
-              startDate: "呼吸内科",
-              applyDate: "呼吸内科",
-              reason: "食管狭窄扩张术/内镜下食管..."
-            },
-            {
-              name: "张三",
-              startDate: "呼吸内科",
-              applyDate: "呼吸内科",
-              reason: "食管狭窄扩张术/内镜下食管..."
-            },
-            {
-              name: "李三",
-              startDate: "呼吸内科",
-              applyDate: "呼吸内科",
-              reason: "食管狭窄扩张术/内镜下食管..."
-            },
-            {
-              name: "王二",
-              startDate: "呼吸内科",
-              applyDate: "呼吸内科",
-              reason: "食管狭窄扩张术/内镜下食管..."
-            },
-            {
-              name: "张三",
-              startDate: "呼吸内科",
-              applyDate: "呼吸内科",
-              reason: "食管狭窄扩张术/内镜下食管..."
-            },
-            {
-              name: "李三",
-              startDate: "呼吸内科",
-              applyDate: "呼吸内科",
-              reason: "食管狭窄扩张术/内镜下食管..."
-            },
-            {
-              name: "王二",
-              startDate: "呼吸内科",
-              applyDate: "呼吸内科",
-              reason: "食管狭窄扩张术/内镜下食管..."
-            },
-            {
-              name: "张三",
-              startDate: "呼吸内科",
-              applyDate: "呼吸内科",
-              reason: "食管狭窄扩张术/内镜下食管..."
-            },
-            {
-              name: "李三",
-              startDate: "呼吸内科",
-              applyDate: "呼吸内科",
-              reason: "食管狭窄扩张术/内镜下食管..."
-            },
-            {
-              name: "王二",
-              startDate: "呼吸内科",
-              applyDate: "呼吸内科",
-              reason: "食管狭窄扩张术/内镜下食管..."
-            },
-            {
-              name: "张三",
-              startDate: "呼吸内科",
-              applyDate: "呼吸内科",
-              reason: "食管狭窄扩张术/内镜下食管..."
-            },
-            {
-              name: "李三",
-              startDate: "呼吸内科",
-              applyDate: "呼吸内科",
-              reason: "食管狭窄扩张术/内镜下食管..."
-            },
-            {
-              name: "王二",
-              startDate: "呼吸内科",
-              applyDate: "呼吸内科",
-              reason: "食管狭窄扩张术/内镜下食管..."
-            },
-            {
-              name: "张三",
-              startDate: "呼吸内科",
-              applyDate: "呼吸内科",
-              reason: "食管狭窄扩张术/内镜下食管..."
-            },
-            {
-              name: "李三",
-              startDate: "呼吸内科",
-              applyDate: "呼吸内科",
-              reason: "食管狭窄扩张术/内镜下食管..."
-            },
-            {
-              name: "王二",
-              startDate: "呼吸内科",
-              applyDate: "呼吸内科",
-              reason: "食管狭窄扩张术/内镜下食管..."
-            },
-            {
-              name: "张三",
-              startDate: "呼吸内科",
-              applyDate: "呼吸内科",
-              reason: "食管狭窄扩张术/内镜下食管..."
-            },
-            {
-              name: "李三",
-              startDate: "呼吸内科",
-              applyDate: "呼吸内科",
-              reason: "食管狭窄扩张术/内镜下食管..."
-            },
-            {
-              name: "王二",
-              startDate: "呼吸内科",
-              applyDate: "呼吸内科",
-              reason: "食管狭窄扩张术/内镜下食管..."
-            },
-            {
-              name: "张三",
-              startDate: "呼吸内科",
-              applyDate: "呼吸内科",
-              reason: "食管狭窄扩张术/内镜下食管..."
-            },
-            {
-              name: "李三",
-              startDate: "呼吸内科",
-              applyDate: "呼吸内科",
-              reason: "食管狭窄扩张术/内镜下食管..."
-            },
-            {
-              name: "王二",
-              startDate: "呼吸内科",
-              applyDate: "呼吸内科",
-              reason: "食管狭窄扩张术/内镜下食管..."
-            }
-          ];
-
           if (data.content.length) {
             const content = data.content.map(i => {
               const item = i;
-              //   item.name = item.studentVO.name;
-              //   item.startDatee = item.startDate + "-" + item.endDate;
               return item;
             });
             this.listData = [...this.listData, ...content];

@@ -4,8 +4,8 @@
     <van-nav-bar left-arrow :title="title" fixed border @click-left="onClickLeft" class="header"></van-nav-bar>
     <div class="heade">
       <div class="head">
-        <ul v-for="medical in applyList">
-          <li v-for="item in temple">
+        <ul v-for="(medical,inde) in applyList" :key="inde">
+          <li v-for="(item,index) in temple" :key="index">
             <template v-if="item.type !== 'show'">
               <p>{{item.field}}</p>
               <p>{{medical[item['name']]}}</p>

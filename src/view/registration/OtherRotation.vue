@@ -1,16 +1,17 @@
 <template>
   <div>
-    <van-nav-bar :title="title" :right-text="rightText" class="header" fixed left-arrow @click-left="onClickLeft"
+    <van-nav-bar v-if="isShowt" :title="title" :right-text="rightText" class="header" fixed left-arrow @click-left="onClickLeft"
                  @click-right="cellSelected"/>
+    <van-nav-bar v-else :title="title"  class="header" fixed left-arrow @click-left="onClickLeft"/>             
     <div class="layout_content bgWhite">
       <div>
         <p class="title" v-if="!notOther">{{table.title}} <span class="a">{{table.data.length}}</span> 条活动</p>
-        <p class="title-disease-skill" v-if="notOther"><span>{{table.title}}</span><span>{{name}}</span><span></span>
+        <p class="title-disease-skill" v-if="notOther"><span>{{table.title}}</span><span>{{$store.state.bzName}}</span><span></span>
         </p>
       </div>
       <div class="thead">
         <van-row>
-          <div v-for="tab in table.theader">
+          <div v-for="(tab,index) in table.theader" :key="index">
             <p v-if="tab.type != 'checkedbox'" class="van-ellipsis center taboy">{{tab.value}}</p>
             <p v-if="tab.type == 'checkedbox'" class="van-ellipsis center taboy">请选择</p>
           </div>
@@ -18,9 +19,9 @@
       </div>
       <div>
         <!--<van-row>-->
-          <div v-for="item in table.theader" class="w25">
-            <div v-for="curData in table.data">
-              <p v-if="item.type != 'checkedbox'" class="van-ellipsis center taboy" @click="cellSelected(curData)">
+          <div v-for="(item,index) in table.theader" class="w25" :key="index">
+            <div v-for="(curData,inx) in table.data" :key="inx">
+              <p v-if="item.type != 'checkedbox'" class="van-ellipsis center taboy" @click="isShowt && cellSelected(curData)">
                 {{returnInnerHtml(curData, item["name"], item)}}</p>
               <p v-if="item.type == 'checkedbox'" class="van-ellipsis center taboy">
                 <van-icon name="checked" class="icon" :color="curData.checked ? '#397de8' : '#cdcdcd'"
@@ -101,10 +102,25 @@
             { name: "guideWayName", value: "指导方式" },
             { name: "content", value: "指导内容" }
           ],
+          27: [
+            { name: "departmentName", value: "轮转科室" },
+            { name: "date", value: "日期" },
+            { name: "reportName", value: "报告类型" },
+          ], 
+          28: [
+            { name: "departmentName", value: "轮转科室" },
+            { name: "date", value: "日期" },
+            { name: "reportName", value: "报告类型" },
+          ],   
+          29: [
+            { name: "departmentName", value: "轮转科室" },
+            { name: "date", value: "日期" },
+            { name: "speaker", value: "主讲人" },
+          ],  
           diseaseAndSkill: [
             { name: "patientName", value: "病人姓名" },
             { name: "admissionNumber", value: "编号" },
-            { name: "isTubeBed", value: "是否管床", type: "select" },
+            { name: "isTubeBed", value: "全程管理", type: "select" },
             { name: "auditFlag", value: "审核状态", type: "select" }
           ]
         },
@@ -117,19 +133,25 @@
         name: "",
         title: "",
         color: "#cdcdcd",
-        rightText: "新增"
+        rightText: "新增",
+        isShowt: true,
       };
     },
     methods: {
       onClickLeft() {
         if (this.rightText == "管理" || this.rightText == "新增") {
           this.utils.goBack(this);
+          this.$store.state.registerCode = null;
+          this.$store.state.registerName = null;
         } else if (this.rightText == "删除") {
           this.rightText = "管理";
           this.table.theader = this.table.theader.splice(1, 4);
         }
       },
       returnInnerHtml(obj, key, item) {
+        if (key == "admissionNumber") {
+          return obj["admissionNumber"] || obj["visitNumber"] || "----"
+        }
         if (item.type == "select") {
           if (obj[key] == "1") {
             return "是";
@@ -137,43 +159,70 @@
             return "否";
           }
         } else {
-          return obj[key];
+          return obj[key] || "----";
         }
       },
       getData(type) {
+        console.log(this.$store.state.regsterMode,'6548888');
+        var oneLevelType = '';
+        if(this.$store.state.regsterMode == "disease"){
+           oneLevelType = 1
+        }
+        if(this.$store.state.regsterMode == "skill"){
+           oneLevelType = 2
+        }
+        if(this.$store.state.regsterMode == "surgery"){
+           oneLevelType = 4
+        }
+        if(this.$store.state.regsterMode == "other"){
+           oneLevelType = 3
+        }
         this.table.theader = this.otherField[type];
         this.table.title = this.utils.getValueByKey(this.$store.state.other, type);
         this.title = "其他轮转";
-        let url = this.api.queryOtherRotation;
-        let obj = { twoLevelType: type, currTime: this.$store.state.currentDepartment.endDate };
-        if (type == "disease" || type == "skill") {
+        let url = this.api.queryEnrollmentByCode;
+        let obj = { twoLevelType: type, oneLevelType: oneLevelType };
+        if(this.$store.state.regsterMode == "other"){
+           obj.normalDepartmentId = this.$store.state.scheduling.normalDepartmentId
+        }
+        if (type == "disease" || type == "skill" || type == "surgery") {
           let code = "";
+          if (this.$route.params.name) {
+            this.$store.state.registerName = this.$route.params.name;
+          }
           if (this.$route.params.code) {
             code = this.$route.params.code;
             this.$store.state.registerCode = code;
           } else {
             code = this.$store.state.registerCode;
           }
-          url = this.api.queryDiseaseList;
           this.notOther = true;
           this.name = this.$route.params.name;
           obj = {
-            currTime: this.$store.state.currentDepartment.endDate,
-            diseaseCode: code
+            code: code,
+            instituteEnrollemntId: this.$route.params.id,
+            normalDepartmentId: this.$store.state.scheduling.normalDepartmentId,
+            oneLevelType: oneLevelType
           };
           this.rightText = "管理";
           if (type == "disease") {
             this.title = "病种";
             this.table.title = "病种名称";
             obj.type = "1";
-          } else {
+          } 
+          if (type == 'skill'){
             this.title = "技能";
             this.table.title = "技能名称";
             obj.type = "2";
+            
           }
+          if (type == 'surgery'){
+            this.title = "手术";
+            this.table.title = "技能名称";
+            obj.type = "4";
+          } 
           this.table.theader = this.otherField["diseaseAndSkill"];
         }
-
 
         var joinRole = [
             { value: "第一研究员", key: 6 },
@@ -193,6 +242,14 @@
             { value: "人文指导", key: 7 },
             { value: "其他", key: 8 }
             ];
+         var reportTypeList = [
+            { value: "心电图报告", key: 1 },
+            { value: "X线诊断", key: 2 },
+            { value: "X线计算机体层成像（CT）诊断报告", key: 3 },
+            { value: "多关节等速与表面肌电图评估报告", key: 4 },
+            { value: "个人健康档案", key: 5 },
+            { value: "家庭健康档案", key: 6 },
+            ];   
         var that = this;
         this.utils.ajax({
           url: url,
@@ -206,7 +263,11 @@
                 item.joinRoleName = that.utils.getValueByKey(joinRole,item.joinRole);
               } else if (type == 21) {
                 item.guideWayName = that.utils.getValueByKey(guideWayList,item.guideWay);
-              }
+              } else if (type == 27) {
+                item.reportName = that.utils.getValueByKey(reportTypeList,item.reportType);
+              }  else if (type == 28) {
+                item.reportName = that.utils.getValueByKey(reportTypeList,item.reportType);
+              } 
             });
             this.table.data = data;
           }
@@ -216,11 +277,32 @@
         obj.checked = !obj.checked;
       },
       cellSelected(obj) {
-        if (obj.twoLevelType) {
-          this.$store.state.EditRegisterNum = "" + obj.twoLevelType;
-          this.$store.state.EditRegisterObj = obj;
-          this.$router.push({ name: "EditRegister" });
-          return;
+         if (obj.twoLevelType) {
+            if(obj.oneLevelType == 1) {
+              this.$store.state.paramsDepartmentName['title'] = '病种';
+              this.$store.state.paramsDepartmentName.key = 'disease';
+              this.$router.push({ name: "RegistrationHand",params:{item:obj} });
+              return
+            }
+            if(obj.oneLevelType == 2) {
+              this.$store.state.paramsDepartmentName['title'] = '临床操作技能';
+              this.$store.state.paramsDepartmentName.key = 'skill';
+              this.$router.push({ name: "RegistrationHand",params:{item:obj} });
+              return
+            }
+            if(obj.oneLevelType == 4) {
+              this.$store.state.paramsDepartmentName['title'] = '手术';
+              this.$store.state.paramsDepartmentName.key = 'surgery';
+              this.$router.push({ name: "RegistrationHand",params:{item:obj} });
+              return
+            }
+            if(obj.oneLevelType == 3) { 
+              this.$store.state.EditRegisterNum = "" + obj.twoLevelType;
+              this.$store.state.EditRegisterObj = obj;
+              this.$router.push({ name: "EditRegister" });
+              return;
+            }
+            
         }
         if (this.rightText == "新增") {
           if (this.$route.params.name) {
@@ -260,10 +342,20 @@
             this.Toast("请选择数据");
           }
         }
-      }
+      },
+      isShow() {
+        var date = new Date().getTime();
+        if(this.$store.state.startTimeDate){
+          if( date < this.utils.getTime(this.$store.state.startTimeDate)){
+              this.isShowt = false;
+            return;
+          }
+        }  
+    }
     },
     created() {
       this.getData(this.$route.query.type);
+      this.isShow();
     }
   };
 </script>

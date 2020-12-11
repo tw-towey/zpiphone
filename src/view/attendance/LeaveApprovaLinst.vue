@@ -1,6 +1,6 @@
 <template>
   <div class="leaveWarp" :class="isAndroid?'autoInput':''">
-    <van-nav-bar title="请假审批" class="header" fixed left-arrow @click-left="onClickLeft"/>
+    <van-nav-bar title="请假审批" class="header" fixed left-arrow @click-left="onClickLeft" />
 
     <div class="layout_content">
       <div class="tabulate">
@@ -33,14 +33,8 @@
         <div class="Leave_type_top">
           <div class="approval_opinion">
             <p>审批意见：</p>
-            <van-field
-              v-model="manualAuditList[0].auditOpinion"
-              type="textarea"
-              placeholder="请输入审批意见"
-              class="textarea"
-              maxlength="200"
-              rows="1"
-            />
+            <van-field v-model="manualAuditList[0].auditOpinion" type="textarea" placeholder="请输入审批意见" class="textarea"
+              maxlength="200" rows="1" />
           </div>
         </div>
       </div>
@@ -112,11 +106,11 @@ export default {
 
       return ua.indexOf("Android") > -1 || ua.indexOf("Adr") > -1;
     },
-    onSelect(item) {
+    onSelect() {
       // 点击选项时默认不会关闭菜单，可以手动关闭
       this.show = false;
     },
-    getParams: function() {
+    getParams: function () {
       let list = this.manualAuditList[0];
       list.name = this.$route.params.name;
       list.applyDate = this.$route.params.applyDate;

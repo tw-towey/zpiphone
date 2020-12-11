@@ -1,10 +1,10 @@
 <template>
   <div>
     <div class="calendarHeader">
-      <span v-for="week in weeks">{{week}}</span>
+      <span v-for="(week,index) in weeks" :key="index">{{week}}</span>
     </div>
     <div class="calendarContent slide" ref='slide' @touchstart='touchStart' @touchend='touchEnd'>
-      <div class="bt" v-for="dayList in dayLists" @click="getDay(dayLists, dayList)"
+      <div class="bt" v-for="(dayList,inx) in dayLists" :key="inx" @click="getDay(dayLists, dayList)"
            :class="{disabled:dayList.isDisabled}">
         <span :class="{active:dayList.isActive}">{{dayList.num}}</span>
         <p :style="{background: dayList.flagBg}"></p>

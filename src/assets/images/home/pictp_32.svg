@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="82px" height="82px" viewBox="0 0 82 82" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 62 (91390) - https://sketch.com -->
+    <title>编组</title>
+    <desc>Created with Sketch.</desc>
+    <g id="页面-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="编组">
+            <g id="pic_zp-05" fill="#F56E6D" fill-rule="nonzero">
+                <circle id="椭圆形" cx="41" cy="41" r="41"></circle>
+            </g>
+            <line x1="18.5" y1="20.5" x2="45.5" y2="20.5" id="直线" stroke="#FFFFFF" stroke-width="2" stroke-linecap="square"></line>
+            <line x1="18.5" y1="41" x2="45.5" y2="41" id="直线备份-2" stroke="#FFFFFF" stroke-width="2" stroke-linecap="square"></line>
+            <line x1="18.5" y1="62" x2="45.5" y2="62" id="直线备份-4" stroke="#FFFFFF" stroke-width="2" stroke-linecap="square"></line>
+            <line x1="18.5" y1="30" x2="36" y2="30" id="直线备份" stroke="#FFFFFF" stroke-width="2" stroke-linecap="square"></line>
+            <line x1="18.5" y1="52" x2="36" y2="52" id="直线备份-3" stroke="#FFFFFF" stroke-width="2" stroke-linecap="square"></line>
+            <polyline id="路径-2" stroke="#FFFFFF" stroke-width="2" points="51.3642578 22.9599609 55.5751953 27.0947266 63.2480469 20.5"></polyline>
+            <rect id="矩形" stroke="#FFFFFF" stroke-width="2" x="51" y="37" width="10" height="8"></rect>
+            <rect id="矩形备份" stroke="#FFFFFF" stroke-width="2" x="51" y="54" width="10" height="8"></rect>
+        </g>
+    </g>
+</svg>

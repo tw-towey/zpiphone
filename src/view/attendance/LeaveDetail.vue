@@ -1,12 +1,12 @@
 <template>
   <div>
-    <van-nav-bar title="详情" class="header" fixed left-arrow @click-left="onClickLeft"/>
+    <van-nav-bar title="详情" class="header" fixed left-arrow @click-left="onClickLeft" right-text="删除" @click-right="onClickright"/>
 
     <div class="layout_content">
       <div class="detail" v-if="detailData.studentVO">
         <van-cell :title="detailData.studentVO.name" :value="detailData.applyDate"/>
         <ul class="leaveUl">
-          <li v-for="de in desc">
+          <li v-for="(de,index) in desc" :key="index">
             <span class="gray leftTitle">{{de.type}}</span>
             <span class="rightTitle" v-if="de.lis">{{detailData[de.start]}} ~ {{detailData[de.end]}}</span>
             <span class="rightTitle" v-else>{{detailData[de.name]}}{{de.ending}}</span>
@@ -97,6 +97,24 @@
       onClickLeft() {
         this.utils.goBack(this);
       },
+      onClickright(){
+        this.Dialog.confirm({
+          title: "提示",
+          message: "是否确定删除该记录吗"
+        }).then(() => {
+          this.utils.ajax({
+            method: "POST",
+            data: {
+                 ids:[this.$route.params.id]
+            },
+            url: this.api.delLeaveApply,
+            success: data => {
+              this.Toast("删除成功");
+              this.$router.go(-1);
+            }
+          });
+        });
+      },
       getLeaveDetail(params) {
         this.utils.ajax({
           method: "POST",
@@ -124,12 +142,12 @@
 
 <style scoped>
   .detail .van-cell {
-    background: #419efd;
-    color: #fff;
+    background: #cce1f7;
+    color: #000000;
   }
 
   .detail .van-cell__value {
-    color: #fff;
+    color: #000000;
   }
 
   .leaveUl {
