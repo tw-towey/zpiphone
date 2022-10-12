@@ -35,6 +35,11 @@
   resolved "https://registry.npm.taobao.org/@vue/babel-helper-vue-jsx-merge-props/download/@vue/babel-helper-vue-jsx-merge-props-1.0.0.tgz#048fe579958da408fb7a8b2a3ec050b50a661040"
   integrity sha1-BI/leZWNpAj7eosqPsBQtQpmEEA=
 
+"@xmldom/xmldom@^0.7.4":
+  version "0.7.5"
+  resolved "https://registry.yarnpkg.com/@xmldom/xmldom/-/xmldom-0.7.5.tgz#09fa51e356d07d0be200642b0e4f91d8e6dd408d"
+  integrity sha512-V3BIhmY36fXZ1OtVcI9W+FxQqxVLsPKcNjWigIaa81dLC9IolJl5Mt4Cvhmr0flUnjSpTdrbMTSbXqYqV5dT6A==
+
 abbrev@1:
   version "1.1.1"
   resolved "https://registry.npm.taobao.org/abbrev/download/abbrev-1.1.1.tgz#f8f2c887ad10bf67f634f005b6987fed3179aac8"
@@ -6450,17 +6455,12 @@ ws@^4.0.0:
     async-limiter "~1.0.0"
     safe-buffer "~5.1.0"
 
-x2js@^3.2.6:
-  version "3.3.0"
-  resolved "https://registry.npm.taobao.org/x2js/download/x2js-3.3.0.tgz#d85e5fd2ac29dbcf9adf92a917846917b81797c1"
-  integrity sha1-2F5f0qwp28+a35KpF4RpF7gXl8E=
+x2js@^3.4.3:
+  version "3.4.3"
+  resolved "https://registry.yarnpkg.com/x2js/-/x2js-3.4.3.tgz#3f57537302ff269ad7043078188bb07bc8088af9"
+  integrity sha512-+65+WHCaQ9E0Gb2FDz/tYRSRBGGvFsSMiWDGn8KbgJOLkJhZBMCU1lxuRMLyTcx/54IopT0rDQWCUz2f7FTsyQ==
   dependencies:
-    xmldom "^0.1.19"
-
-xmldom@^0.1.19:
-  version "0.1.27"
-  resolved "https://registry.npm.taobao.org/xmldom/download/xmldom-0.1.27.tgz#d501f97b3bdb403af8ef9ecc20573187aadac0e9"
-  integrity sha1-1QH5ezvbQDr4757MIFcxh6rawOk=
+    "@xmldom/xmldom" "^0.7.4"
 
 xtend@^4.0.0, xtend@~4.0.1:
   version "4.0.1"
